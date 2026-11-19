@@ -14,5 +14,13 @@ def shell(request):
             "content_max_width": conf.get("CAPY_SHELL_CONTENT_MAX_WIDTH"),
             "content_padding": conf.get("CAPY_SHELL_CONTENT_PADDING"),
             "home_url": conf.get("CAPY_SHELL_HOME_URL"),
+            "header_sticky": conf.get("CAPY_SHELL_HEADER_STICKY"),
+            "sidebar": conf.get("CAPY_SHELL_SIDEBAR"),
+            "sidebar_width": conf.get("CAPY_SHELL_SIDEBAR_WIDTH"),
+            "sidebar_sticky": conf.get("CAPY_SHELL_SIDEBAR_STICKY"),
+            "aside": conf.get("CAPY_SHELL_ASIDE"),
+            "aside_width": conf.get("CAPY_SHELL_ASIDE_WIDTH"),
+            "aside_sticky": conf.get("CAPY_SHELL_ASIDE_STICKY"),
+            "footer": conf.get("CAPY_SHELL_FOOTER"),
         }
     }

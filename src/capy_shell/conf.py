@@ -4,7 +4,7 @@ Every CAPY_SHELL_* setting is read through get(), so this is the one place that
 lists them. The README's Settings table lists the same ones.
 
 capy-shell owns page *structure and geometry* (which regions exist, the content
-container's width and padding); the *look* (colours, type, spacing scale) comes
+container's width and padding); the *look* (colors, type, spacing scale) comes
 from capy-theme's daisyUI tokens, so there are deliberately few style settings here.
 """
 
@@ -18,6 +18,21 @@ DEFAULTS = {
     "CAPY_SHELL_CONTENT_PADDING": "px-4 py-6",
     # Where the header's brand/logo links (a path or a name the project resolves).
     "CAPY_SHELL_HOME_URL": "/",
+    # The chrome regions around the content, and how each behaves. The header is
+    # always present (it holds the brand, mode toggle and — later — the burger);
+    # the sidebar, aside and footer are present only when turned on. "Sticky" keeps
+    # a region in view as the page scrolls; widths are Tailwind classes. The regions
+    # are empty until something fills their blocks (nav content arrives in a later
+    # feature); the responsive drawer that collapses the sidebar on small screens is
+    # a later feature too.
+    "CAPY_SHELL_HEADER_STICKY": True,
+    "CAPY_SHELL_SIDEBAR": True,
+    "CAPY_SHELL_SIDEBAR_WIDTH": "w-64",
+    "CAPY_SHELL_SIDEBAR_STICKY": True,
+    "CAPY_SHELL_ASIDE": False,
+    "CAPY_SHELL_ASIDE_WIDTH": "w-64",
+    "CAPY_SHELL_ASIDE_STICKY": True,
+    "CAPY_SHELL_FOOTER": False,
 }
 
 
