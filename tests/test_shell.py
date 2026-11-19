@@ -2,9 +2,20 @@
 
 from pathlib import Path
 
+from django.template.loader import render_to_string
+from django.test import RequestFactory
+
 import capy_shell
 from capy_shell import conf
 from capy_shell.context_processors import shell
+
+BASE_TEMPLATE = Path(capy_shell.__file__).parent / "templates/capy_shell/base.html"
+
+
+def _render_shell():
+    # Render the shell base through the stand-in project (tests/settings.py wires the
+    # context processor, a parent base.html and the no-op capy_theme tags).
+    return render_to_string("capy_shell/base.html", request=RequestFactory().get("/"))
 
 
 def test_conf_returns_the_defaults():
@@ -46,6 +57,41 @@ def test_context_processor_exposes_the_region_config(settings):
     assert ctx["header_sticky"] is True  # still the default
     assert ctx["footer"] is False  # still the default
     assert ctx["sidebar_width"] == "w-64"
+
+
+def test_regions_render_only_when_their_setting_is_on(settings):
+    # Defaults: sidebar + sticky header, no aside, no footer.
+    html = _render_shell()
+    assert "border-r" in html  # the sidebar wrapper
+    assert "sticky top-0" in html  # the header is sticky
+    assert "<aside" not in html  # aside off
+    assert "<footer" not in html  # footer off
+
+    settings.CAPY_SHELL_SIDEBAR = False
+    settings.CAPY_SHELL_ASIDE = True
+    settings.CAPY_SHELL_FOOTER = True
+    settings.CAPY_SHELL_HEADER_STICKY = False
+    html = _render_shell()
+    assert "border-r" not in html  # sidebar gone
+    assert "<aside" in html  # aside on
+    assert "<footer" in html  # footer on
+    assert "sticky top-0" not in html  # header no longer sticky
+
+
+def test_safelist_comment_covers_the_settings_driven_classes():
+    # Classes that reach the template from settings can't be seen by Tailwind's
+    # scanner, so the shipped defaults must appear literally in base.html (its
+    # tailwind-safelist comment) or Tailwind won't build them. Guards against drift.
+    base = BASE_TEMPLATE.read_text()
+    class_settings = [
+        "CAPY_SHELL_SIDEBAR_WIDTH",
+        "CAPY_SHELL_ASIDE_WIDTH",
+        "CAPY_SHELL_CONTENT_MAX_WIDTH",
+        "CAPY_SHELL_CONTENT_PADDING",
+    ]
+    for name in class_settings:
+        for token in conf.DEFAULTS[name].split():
+            assert token in base, f"{token!r} (default of {name}) is missing from base.html"
 
 
 def test_content_stylesheet_ships_and_is_scoped():
