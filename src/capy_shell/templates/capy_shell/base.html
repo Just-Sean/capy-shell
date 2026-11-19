@@ -7,11 +7,16 @@
   Feature modules then extend layout.html and fill {% block content %}.
 
   Later features add the left nav sidebar, an optional aside, and a footer.
-  The project's base.html must expose a {% block body %} inside <body>, and have
-  capy_theme installed (for the logo and mode toggle) and "capy_shell.context_processors.shell"
-  in its template context processors.
+  The project's base.html must expose a {% block head %} inside <head> and a
+  {% block body %} inside <body>, and have capy_theme installed (for the logo and
+  mode toggle) and "capy_shell.context_processors.shell" in its template context
+  processors.
 {% endcomment %}
-{% load capy_theme %}
+{% load capy_theme static %}
+
+{% block head %}{{ block.super }}
+  <link rel="stylesheet" href="{% static 'capy_shell/shell.css' %}">
+{% endblock %}
 
 {% block body %}
 <a href="#capy-shell-main"

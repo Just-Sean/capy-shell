@@ -1,0 +1,17 @@
+/* capy-shell content styling.
+
+   Tailwind's reset strips links of colour and underline, so a plain link in page
+   content reads as unstyled text (WCAG 1.4.1, use of colour). Restyle unclassed
+   links inside the content area with the theme's primary colour and an underline
+   (the underline carries the meaning, so it isn't colour alone). Links and buttons
+   that already carry a daisyUI class (btn, link, badge, …) are left untouched. */
+
+#capy-shell-main a:not([class]) {
+  color: var(--color-primary, currentColor);
+  text-decoration-line: underline;
+  text-underline-offset: 0.15em;
+}
+
+#capy-shell-main a:not([class]):hover {
+  text-decoration-thickness: 0.1em;
+}

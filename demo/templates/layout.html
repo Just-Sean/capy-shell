@@ -12,7 +12,7 @@
   </a>
 {% endblock %}
 
+{% comment %} The shell already renders the mode toggle; just add the Admin link. {% endcomment %}
 {% block shell_header_actions %}
-  {% theme_mode_toggle %}
   <a href="{% url 'admin:index' %}" class="btn btn-ghost btn-sm">Admin</a>
 {% endblock %}
