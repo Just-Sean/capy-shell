@@ -17,7 +17,7 @@
   mode toggle) and "capy_shell.context_processors.shell" in its template context
   processors.
 {% endcomment %}
-{% load capy_theme static %}
+{% load capy_theme capy_icons static %}
 
 {% comment %}
   Tailwind only generates class names it can see in the source it scans, and it
@@ -56,13 +56,7 @@
            aria-controls="capy-shell-nav" aria-expanded="false"
            aria-label="Open navigation menu"
            class="btn btn-square btn-ghost mr-2 md:hidden">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24"
-           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-           stroke-linejoin="round" aria-hidden="true">
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
+      {% icon "menu" class="h-5 w-5" %}
     </label>
   {% endif %}
   <div class="flex-1">
