@@ -121,14 +121,19 @@ capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` an
 
    | Block | Region |
    |---|---|
-   | `shell_header` | The whole top bar (override to replace it). |
+   | `shell_header` | The whole top bar. |
    | `shell_nav` | The left-nav sidebar (shown when `CAPY_SHELL_SIDEBAR` is on). |
    | `shell_aside` | The right-hand aside (shown when `CAPY_SHELL_ASIDE` is on). |
    | `shell_footer` | The footer (shown when `CAPY_SHELL_FOOTER` is on). |
 
+   For small header changes prefer the `shell_brand` and `shell_header_actions`
+   slots; overriding the whole `shell_header` block means re-providing the brand,
+   the `{% theme_mode_toggle %}` and the `CAPY_SHELL_HEADER_STICKY` behavior yourself.
+
    Which regions appear, whether they stick, and their widths are set with
-   `CAPY_SHELL_*` settings (see [Settings](#settings)). Only fill a region's block
-   when its setting is on: an enabled region with nothing in it is an empty landmark.
+   `CAPY_SHELL_*` settings (see [Settings](#settings)). Turn a region on only when
+   you have something to put in its block: an enabled aside or footer with nothing
+   in it is an empty landmark, and an enabled sidebar is an empty column.
 
    The shell styles **plain links in page content** (an `<a>` with no class, inside
    the content area) with the theme's color and an underline, so content links don't

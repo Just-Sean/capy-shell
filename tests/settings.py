@@ -11,6 +11,7 @@ starts this database, with a login like CI's):
 
 import os
 import secrets
+from pathlib import Path
 
 import dj_database_url
 
@@ -42,13 +43,18 @@ ROOT_URLCONF = "tests.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [Path(__file__).parent / "templates"],  # the stand-in project's base.html
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "capy_shell.context_processors.shell",
             ],
+            # capy-theme isn't installed here (or in CI), so stand its template tags
+            # in with no-ops, letting the shell's templates render in the tests.
+            "libraries": {"capy_theme": "tests.capy_theme_stub"},
         },
     },
 ]

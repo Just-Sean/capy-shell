@@ -1,12 +1,15 @@
 {% extends "base.html" %}
 {% comment %}
-  The app shell. Renders a header (the theme logo + light/dark toggle) and the
-  content container that pages render into, inside the project's base.html body.
+  The app shell. Renders the header (the theme logo + light/dark toggle) and the
+  optional sidebar / aside / footer regions around the content container pages
+  render into, inside the project's base.html body. The regions are empty
+  scaffolding here, shown and sized by the CAPY_SHELL_* settings (see conf.py); the
+  responsive burger-menu drawer that collapses the sidebar on small screens is a
+  later feature.
 
   A project's layout.html extends this in one line:  {% extends "capy_shell/base.html" %}
   Feature modules then extend layout.html and fill {% block content %}.
 
-  Later features add the left nav sidebar, an optional aside, and a footer.
   The project's base.html must expose a {% block head %} inside <head> and a
   {% block body %} inside <body>, and have capy_theme installed (for the logo and
   mode toggle) and "capy_shell.context_processors.shell" in its template context
@@ -57,7 +60,7 @@
 <div class="flex">
   {% if shell.sidebar %}
     <div class="hidden shrink-0 border-r border-base-300 md:block {{ shell.sidebar_width }}
-                {% if shell.sidebar_sticky %}md:sticky md:top-16 md:self-start md:max-h-screen md:overflow-y-auto{% endif %}">
+                {% if shell.sidebar_sticky %}md:sticky md:self-start md:overflow-y-auto {% if shell.header_sticky %}md:top-16 md:max-h-[calc(100dvh_-_4rem)]{% else %}md:top-0 md:max-h-screen{% endif %}{% endif %}">
       {% block shell_nav %}{% endblock %}
     </div>
   {% endif %}
@@ -70,7 +73,7 @@
 
   {% if shell.aside %}
     <aside class="hidden shrink-0 border-l border-base-300 md:block {{ shell.aside_width }}
-                  {% if shell.aside_sticky %}md:sticky md:top-16 md:self-start md:max-h-screen md:overflow-y-auto{% endif %}">
+                  {% if shell.aside_sticky %}md:sticky md:self-start md:overflow-y-auto {% if shell.header_sticky %}md:top-16 md:max-h-[calc(100dvh_-_4rem)]{% else %}md:top-0 md:max-h-screen{% endif %}{% endif %}">
       {% block shell_aside %}{% endblock %}
     </aside>
   {% endif %}
