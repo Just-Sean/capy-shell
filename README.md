@@ -111,9 +111,16 @@ capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` an
    {% block shell_header_actions %}{% theme_mode_toggle %}{% endblock %}
    ```
 
-   The project's `base.html` must expose a `{% block body %}` inside `<body>`
-   (the shell fills it). Feature modules extend `layout.html` and fill
+   The project's `base.html` must expose a `{% block head %}` inside `<head>`
+   (the shell adds its content stylesheet there) and a `{% block body %}` inside
+   `<body>` (the shell fills it). Feature modules extend `layout.html` and fill
    `{% block content %}`.
+
+   The shell styles **plain links in page content** (an `<a>` with no class, inside
+   the content area) with the theme's colour and an underline, so content links don't
+   read as unstyled text after Tailwind's reset — without touching daisyUI-classed
+   buttons, badges or links. That styling ships in `capy_shell/static/capy_shell/shell.css`,
+   loaded by the `{% block head %}` above.
 3. Add capy-shell's templates to the project's Tailwind `@source`, so the daisyUI
    classes in them are built (adjust the Python version to match):
 
