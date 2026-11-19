@@ -32,12 +32,12 @@ def icon(name, size=24, label="", **attrs):
     if attrs:
         raise template.TemplateSyntaxError(
             f"icon tag got unexpected argument(s): {', '.join(sorted(attrs))}. "
-            f"It takes name, size, label and class."
+            "It takes name, size, label and class."
         )
 
     svg = get_svg(name)
     match = _SVG_OPEN.search(svg)
-    if match is None:  # pragma: no cover - the vendored icons are all well-formed
+    if match is None:  # reachable via a malformed project-supplied icon
         raise IconError(f"Icon {name!r} is not valid SVG (no <svg> element).")
 
     # Escape every injected value: size/class/label may be template variables.
@@ -52,4 +52,4 @@ def icon(name, size=24, label="", **attrs):
     # The SVG text is trusted (a vendored file); `injected` is escaped. Splice the
     # attributes in after "<svg" and mark the whole thing safe.
     cut = match.end()
-    return mark_safe(svg[:cut] + injected + svg[cut:])  # noqa: S308 (trusted vendored SVG; injected attrs escaped)
+    return mark_safe(svg[:cut] + injected + svg[cut:])  # noqa: S308 (trusted vendored or project-configured SVG; injected attrs escaped)

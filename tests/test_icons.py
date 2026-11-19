@@ -50,14 +50,23 @@ def test_invalid_names_are_rejected(bad):
         get_svg(bad)
 
 
+@pytest.mark.parametrize("bad", [None, 123, 4.5])
+def test_non_string_names_raise_iconerror_not_typeerror(bad):
+    # A dynamic name that resolves to None/a number must still fail cleanly.
+    with pytest.raises(IconError, match="Invalid icon name"):
+        get_svg(bad)
+
+
 def test_a_project_can_add_and_override_icons(settings, tmp_path):
     (tmp_path / "menu.svg").write_text(A_MINIMAL_SVG)  # same name as a built-in
     (tmp_path / "custom.svg").write_text(A_MINIMAL_SVG)
     settings.CAPY_SHELL_ICON_DIRS = [str(tmp_path)]
     # The project's dir is searched first, so it overrides the built-in "menu"...
     assert get_svg("menu") == A_MINIMAL_SVG.strip()
-    # ...and adds brand-new icons.
+    # ...and adds brand-new icons...
     assert "M4 4h16" in get_svg("custom")
+    # ...while a built-in the project didn't override still falls through to ours.
+    assert "<svg" in get_svg("user")
 
 
 # --- the tag ------------------------------------------------------------------
@@ -99,3 +108,11 @@ def test_label_is_escaped():
 def test_unexpected_argument_errors():
     with pytest.raises(TemplateSyntaxError, match="unexpected argument"):
         render('{% icon "menu" title="nope" %}')
+
+
+def test_a_malformed_project_icon_errors(settings, tmp_path):
+    # A project-supplied file that isn't an <svg> fails cleanly, not silently.
+    (tmp_path / "broken.svg").write_text("not an svg")
+    settings.CAPY_SHELL_ICON_DIRS = [str(tmp_path)]
+    with pytest.raises(IconError, match="not valid SVG"):
+        render('{% icon "broken" %}')

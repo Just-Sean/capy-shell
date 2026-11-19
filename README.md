@@ -173,10 +173,16 @@ color (`currentColor`) and the size you pass.
 {% icon "log-out" label="Sign out" %}          {# meaningful: role="img" + an accessible name #}
 ```
 
-An icon is **decorative by default** (`aria-hidden`); pass `label="…"` when the icon is
-the only thing conveying meaning (an icon-only button), which makes it `role="img"` with
-that accessible name. `size` sets the width and height (px by default); `class` adds CSS
-classes. An unknown or invalid icon name raises a clear error.
+An icon is **decorative by default** (`aria-hidden`) — which is what you want inside a
+button or link that already has text or its own `aria-label`: name the control and leave
+the icon decorative. The header burger is the reference pattern (an `aria-label`'d
+`<label>` around a decorative `{% icon "menu" %}`). Pass `label="…"` **only** for a
+*standalone* icon that is itself the meaning and sits in no already-named control; it then
+becomes `role="img"` with that name. Don't dim a meaningful icon (`opacity-*`) — that can
+drop it below the 3:1 contrast minimum.
+
+`size` sets the width and height (px); a `w-*`/`h-*` class overrides `size`, so use one or
+the other. An unknown or invalid icon name raises a clear error.
 
 The starter set: `menu`, `x`, `chevron-down`, `chevron-right`, `house`, `settings`,
 `user`, `log-in`, `log-out`, `external-link`.
@@ -188,11 +194,14 @@ folder of `<name>.svg` files. Those directories are searched before the built-in
 CAPY_SHELL_ICON_DIRS = [BASE_DIR / "icons"]  # your icons/menu.svg wins over ours
 ```
 
-Use normalized SVGs (no `width`/`height`/`class` on the root `<svg>`,
-`stroke="currentColor"`); the tag adds those.
+Each SVG must keep `stroke="currentColor"` (so it takes the theme's color) and should
+drop any `width`/`height`/`class` on the root `<svg>` — the tag sets those itself. Files
+in these folders are **inlined verbatim and trusted** (like a template), so only use SVGs
+you control; an untrusted one could carry a `<script>`.
 
 **Updating the vendored set** (maintainers): change the pinned Lucide version or the
-icon list in `scripts/fetch_icons.py`, re-run it, and commit the result:
+icon list in `scripts/fetch_icons.py`, re-run it (needs internet; it fetches from
+github.com and honors `HTTPS_PROXY`), and commit the result:
 
 ```bash
 uv run python scripts/fetch_icons.py   # downloads + normalizes the icons into src/capy_shell/icons/

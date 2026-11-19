@@ -40,17 +40,18 @@ def _load(name: str, dirs: tuple[str, ...]) -> str:
             return path.read_text(encoding="utf-8").strip()
     raise IconError(
         f"No icon named {name!r}. Ship it in an icons directory "
-        f"(see CAPY_SHELL_ICON_DIRS) or choose another name."
+        "(see CAPY_SHELL_ICON_DIRS) or choose another name."
     )
 
 
 def get_svg(name: str) -> str:
     """The SVG markup for an icon name, searched across the configured directories.
 
-    Raises IconError for an invalid name or an icon that isn't found. The cache is
-    keyed on the configured directories, so a project (or a test) that changes
-    CAPY_SHELL_ICON_DIRS is not served a stale result.
+    Raises IconError for an invalid name (including a non-string) or an icon that
+    isn't found. The cache is keyed on the configured directory list, so changing
+    CAPY_SHELL_ICON_DIRS is picked up; icon files are treated as static, so editing
+    one in place isn't re-read until the process restarts.
     """
-    if not NAME_RE.fullmatch(name):
+    if not isinstance(name, str) or not NAME_RE.fullmatch(name):
         raise IconError(f"Invalid icon name {name!r}: use lowercase letters, digits and hyphens.")
     return _load(name, _search_dirs())
