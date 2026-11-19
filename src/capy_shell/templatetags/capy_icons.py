@@ -24,9 +24,9 @@ _SVG_OPEN = re.compile(r"<svg\b", re.IGNORECASE)
 def icon(name, size=24, label="", **attrs):
     """Render the named icon as an inline ``<svg>``.
 
-    ``size`` sets the width and height; ``class`` adds CSS classes. The icon is
-    decorative by default (``aria-hidden``); pass ``label="…"`` to make it a
-    meaningful image (``role="img"`` with an accessible name).
+    ``size`` (a positive number) sets the width and height; ``class`` adds CSS
+    classes. The icon is decorative by default (``aria-hidden``); pass ``label="…"``
+    to make it a meaningful image (``role="img"`` with an accessible name).
     """
     css = attrs.pop("class", "")
     if attrs:
@@ -34,6 +34,13 @@ def icon(name, size=24, label="", **attrs):
             f"icon tag got unexpected argument(s): {', '.join(sorted(attrs))}. "
             "It takes name, size, label and class."
         )
+
+    try:
+        valid_size = float(size) > 0
+    except TypeError, ValueError:
+        valid_size = False
+    if not valid_size:
+        raise template.TemplateSyntaxError(f"icon size must be a positive number, got {size!r}.")
 
     svg = get_svg(name)
     match = _SVG_OPEN.search(svg)

@@ -116,3 +116,10 @@ def test_a_malformed_project_icon_errors(settings, tmp_path):
     settings.CAPY_SHELL_ICON_DIRS = [str(tmp_path)]
     with pytest.raises(IconError, match="not valid SVG"):
         render('{% icon "broken" %}')
+
+
+@pytest.mark.parametrize("bad", [0, -5, "abc", None])
+def test_non_positive_or_non_numeric_size_errors(bad):
+    # size=0 would render an invisible icon, a negative size invalid SVG — reject both.
+    with pytest.raises(TemplateSyntaxError, match="size must be a positive number"):
+        render("{% icon 'menu' size=s %}", s=bad)
