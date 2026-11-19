@@ -128,7 +128,7 @@ checkout — see `pyproject.toml`'s `[tool.uv.sources]`; adjust the path if your
 differs. From the repo root:
 
 ```bash
-uv sync
+uv sync --group demo   # installs capy-theme + the Tailwind CLI (demo-only deps)
 uv run python demo/manage.py migrate
 uv run python demo/manage.py tailwind runserver   # http://localhost:8000/
 ```

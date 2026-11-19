@@ -111,10 +111,12 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-dev = [
+demo = [
     { name = "capy-theme" },
-    { name = "dj-database-url" },
     { name = "django-tailwind-cli" },
+]
+dev = [
+    { name = "dj-database-url" },
     { name = "pip-audit" },
     { name = "pre-commit" },
     { name = "psycopg", extra = ["binary"] },
@@ -128,10 +130,12 @@ dev = [
 requires-dist = [{ name = "django", specifier = ">=6.1,<7" }]
 
 [package.metadata.requires-dev]
-dev = [
+demo = [
     { name = "capy-theme", directory = "../../../Documents/Todo/Projects/capy-theme" },
-    { name = "dj-database-url", specifier = ">=3.1" },
     { name = "django-tailwind-cli", specifier = ">=2.21" },
+]
+dev = [
+    { name = "dj-database-url", specifier = ">=3.1" },
     { name = "pip-audit", specifier = ">=2.10" },
     { name = "pre-commit", specifier = ">=4.7" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3" },

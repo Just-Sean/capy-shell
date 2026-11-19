@@ -39,8 +39,13 @@ dev = [
     "pre-commit>=4.7",          # the commit checks (.pre-commit-config.yaml)
     "pip-audit>=2.10",          # checks the locked dependencies for known vulnerabilities
     "pytest-cov>=7.1",          # test coverage (uv run pytest --cov)
-    "django-tailwind-cli>=2.21",  # demo only: builds the demo's Tailwind/daisyUI CSS
-    "capy-theme",                 # demo only: the shell is themed by capy-theme (see tool.uv.sources)
+]
+
+# Demo site only — install with `uv sync --group demo`. CI and installing projects
+# never sync this group, so the local-path capy-theme source below can't break them.
+demo = [
+    "django-tailwind-cli>=2.21",  # builds the demo's Tailwind/daisyUI CSS
+    "capy-theme",                 # the shell is themed by capy-theme (see tool.uv.sources)
 ]
 
 [tool.uv.sources]
