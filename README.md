@@ -160,6 +160,55 @@ capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` an
    @source "../.venv/lib/python3.14/site-packages/capy_shell/templates";
    ```
 
+## Icons
+
+capy-shell ships a small set of [Lucide](https://lucide.dev) icons and a template tag
+that inlines them as SVG — no JavaScript and no extra dependency. They take the theme's
+color (`currentColor`) and the size you pass.
+
+```django
+{% load capy_icons %}
+{% icon "menu" %}                              {# 24px, decorative #}
+{% icon "settings" size=20 class="opacity-70" %}
+{% icon "log-out" label="Sign out" %}          {# meaningful: role="img" + an accessible name #}
+```
+
+An icon is **decorative by default** (`aria-hidden`) — which is what you want inside a
+button or link that already has text or its own `aria-label`: name the control and leave
+the icon decorative. The header burger is the reference pattern (an `aria-label`'d
+`<label>` around a decorative `{% icon "menu" %}`). Pass `label="…"` **only** for a
+*standalone* icon that is itself the meaning and sits in no already-named control; it then
+becomes `role="img"` with that name. Don't dim a meaningful icon (`opacity-*`) — that can
+drop it below the 3:1 contrast minimum.
+
+`size` sets the width and height (px); a `w-*`/`h-*` class overrides `size`, so use one or
+the other. An unknown or invalid icon name raises a clear error.
+
+The starter set: `menu`, `x`, `chevron-down`, `chevron-right`, `house`, `settings`,
+`user`, `log-in`, `log-out`, `external-link`.
+
+**Add your own icons** — or override a built-in — by pointing `CAPY_SHELL_ICON_DIRS` at a
+folder of `<name>.svg` files. Those directories are searched before the built-ins:
+
+```python
+CAPY_SHELL_ICON_DIRS = [BASE_DIR / "icons"]  # your icons/menu.svg wins over ours
+```
+
+Each SVG must keep `stroke="currentColor"` (so it takes the theme's color) and should
+drop any `width`/`height`/`class` on the root `<svg>` — the tag sets those itself. Files
+in these folders are **inlined verbatim and trusted** (like a template), so only use SVGs
+you control; an untrusted one could carry a `<script>`.
+
+**Updating the vendored set** (maintainers): change the pinned Lucide version or the
+icon list in `scripts/fetch_icons.py`, re-run it (needs internet; it fetches from
+github.com and honors `HTTPS_PROXY`), and commit the result:
+
+```bash
+uv run python scripts/fetch_icons.py   # downloads + normalizes the icons into src/capy_shell/icons/
+```
+
+Lucide is ISC-licensed; its license ships as `src/capy_shell/icons/LICENSE`.
+
 ## Running the demo
 
 A dev-only demo site (`demo/`) shows the shell. It installs capy-theme as a sibling
@@ -197,6 +246,7 @@ type, spacing) comes from capy-theme's daisyUI tokens, so there are few here.
 | `CAPY_SHELL_ASIDE_WIDTH` | `"w-64"` | The aside's width (a Tailwind width class). |
 | `CAPY_SHELL_ASIDE_STICKY` | `True` | Keep the aside in view as the page scrolls (below the header). |
 | `CAPY_SHELL_FOOTER` | `False` | Render the footer region. |
+| `CAPY_SHELL_ICON_DIRS` | `[]` | Extra folders of `<name>.svg` icons, searched before the built-ins, so a project can add or override icons (see [Icons](#icons)). |
 
 The aside is a desktop column, hidden on small screens. The left-nav sidebar is a
 desktop column too, but on small screens it becomes a drawer opened by a burger in
@@ -758,6 +808,9 @@ If the repository itself moved, also point git at it:
 | `src/capy_shell/` | The Django app that projects install |
 | `src/capy_shell/apps.py` | The app's name, label and admin title |
 | `src/capy_shell/models.py` | Database models (empty to start) |
+| `src/capy_shell/icons/` | Vendored Lucide SVG icons + their loader (see Icons) |
+| `src/capy_shell/templatetags/capy_icons.py` | The `{% icon %}` tag |
+| `scripts/fetch_icons.py` | Vendors/updates the Lucide icons (see Icons) |
 | `src/capy_shell/migrations/` | Database migrations (see Database) |
 | `tests/settings.py` | A tiny stand-in project for the tests |
 | `tests/urls.py` | The stand-in project's URLs; add the module's here once it has some |
