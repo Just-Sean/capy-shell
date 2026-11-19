@@ -1,4 +1,4 @@
-"""The shell's settings (conf), context processor (feature 1) and content CSS (feature 2)."""
+"""The shell's settings (conf), context processor, regions, content CSS and nav drawer."""
 
 from pathlib import Path
 
@@ -76,6 +76,48 @@ def test_regions_render_only_when_their_setting_is_on(settings):
     assert "<aside" in html  # aside on
     assert "<footer" in html  # footer on
     assert "sticky top-0" not in html  # header no longer sticky
+
+
+def test_sidebar_is_a_drawer_with_a_burger():
+    html = _render_shell()
+    # A hidden checkbox holds the open/closed state (toggled with no JavaScript).
+    assert 'id="capy-shell-drawer-toggle"' in html
+    # The burger names and controls the drawer for assistive tech.
+    assert 'id="capy-shell-drawer-button"' in html
+    assert 'aria-controls="capy-shell-nav"' in html
+    assert 'aria-expanded="false"' in html
+    # The drawer wrapper is a labelled <nav> landmark with the controlled id.
+    assert '<nav id="capy-shell-nav" aria-label=' in html
+    # The backdrop that closes the drawer.
+    assert 'id="capy-shell-overlay"' in html
+
+
+def test_drawer_script_is_loaded_deferred():
+    html = _render_shell()
+    assert "capy_shell/drawer.js" in html
+    assert "defer" in html
+
+
+def test_no_drawer_when_the_sidebar_is_off(settings):
+    settings.CAPY_SHELL_SIDEBAR = False
+    html = _render_shell()
+    assert 'id="capy-shell-drawer-toggle"' not in html
+    assert 'id="capy-shell-drawer-button"' not in html
+    assert 'id="capy-shell-nav"' not in html
+    assert 'id="capy-shell-overlay"' not in html
+
+
+def test_drawer_styles_and_script_ship():
+    base = Path(capy_shell.__file__).parent
+    css = (base / "static/capy_shell/shell.css").read_text()
+    # Off-canvas below md, slid in by the checkbox via :has(), reduced-motion aware.
+    assert "#capy-shell-nav" in css
+    assert ":has(#capy-shell-drawer-toggle:checked)" in css
+    assert "prefers-reduced-motion" in css
+    js = (base / "static/capy_shell/drawer.js").read_text()
+    # The script enhances the same checkbox and keeps the burger's state in sync.
+    assert "capy-shell-drawer-toggle" in js
+    assert "aria-expanded" in js
 
 
 def test_safelist_comment_covers_the_settings_driven_classes():
