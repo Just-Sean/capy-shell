@@ -1,0 +1,75 @@
+[project]
+name = "capy-shell"
+version = "0.1.0"
+description = "App shell — navigation and page chrome — for the capy ecosystem."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.1,<7",          # the Django versions this module supports
+]
+classifiers = [
+    "Framework :: Django",
+    "Framework :: Django :: 6.1",
+    "Private :: Do Not Upload",    # stops an accidental upload to the public PyPI
+]
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv]
+# The uv versions that may work on the module: the same line as CI (UV_VERSION in
+# .github/workflows/ci.yml), so uv.lock is always written the way CI reads it. A
+# different uv stops with a message saying which version to install.
+required-version = ">=0.12,<0.13"
+
+[tool.uv.build-backend]
+module-name = "capy_shell"   # the folder under src/
+
+[dependency-groups]
+# Only for developing and testing the module; projects never install these.
+dev = [
+    "pytest>=9",
+    "pytest-django>=4.14",
+    "dj-database-url>=3.1",     # lets the tests switch databases via DATABASE_URL
+    "psycopg[binary]>=3.3",     # only used when DATABASE_URL points at Postgres
+    "ruff>=0.17",
+    "pre-commit>=4.7",          # the commit checks (.pre-commit-config.yaml)
+    "pip-audit>=2.10",          # checks the locked dependencies for known vulnerabilities
+    "pytest-cov>=7.1",          # test coverage (uv run pytest --cov)
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+pythonpath = ["."]
+addopts = "--strict-markers"
+# Fail on every Django deprecation warning (removed in the next version or the one
+# after), wherever the deprecated call is, so Django upgrades never surprise you.
+filterwarnings = [
+    "error::django.utils.deprecation.RemovedInNextVersionWarning",
+    "error::django.utils.deprecation.RemovedAfterNextVersionWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "S", "DJ", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["S101"]   # pytest's checks are plain `assert` statements
+
+# Test coverage, measured with `uv run pytest --cov` (pytest-cov).
+[tool.coverage.run]
+source = ["capy_shell"]
+branch = true                 # also checks both sides of every if/else
+omit = ["*/migrations/*"]
+
+[tool.coverage.report]
+show_missing = true           # lists the lines the tests never run
+skip_covered = true           # leaves fully covered files out of the list
+fail_under = 80               # `pytest --cov` fails if total coverage drops below 80%

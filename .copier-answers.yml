@@ -1,0 +1,11 @@
+# Written by Copier. Lets `copier update` know which template and answers this
+# module came from. Don't edit by hand.
+_commit: v1.0.1
+_src_path: /home/sean/Desktop/Projects/django-module-starter
+copyright_year: '2026'
+description: App shell — navigation and page chrome — for the capy ecosystem.
+distribution_name: capy-shell
+github_owner: Just-Sean
+license: MIT
+module_name: Capy Shell
+package_name: capy_shell

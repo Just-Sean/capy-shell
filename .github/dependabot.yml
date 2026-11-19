@@ -1,0 +1,23 @@
+# Dependabot (GitHub): opens a pull request when a newer version of something the
+# module uses comes out, security fixes included. Also turn on "Dependabot alerts" and
+# "Dependabot security updates" in the repository's Settings > Code security, so known
+# vulnerabilities get a pull request straight away, not only at the weekly check.
+# A new release is only proposed once it's a week old (cooldown), so a compromised
+# release has time to be found and pulled first; security updates aren't delayed.
+version: 2
+updates:
+  # Python packages: pyproject.toml and uv.lock.
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+  # The actions CI uses, pinned to commit hashes in .github/workflows/: without this
+  # they'd never be updated.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7

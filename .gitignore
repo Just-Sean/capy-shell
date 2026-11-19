@@ -1,0 +1,33 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+dist/
+
+# Test coverage output (uv run pytest --cov).
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Secrets and keys never go in git: settings come from the environment. The one
+# exception is a committed example with placeholder values. (Test fixtures that look
+# like keys, e.g. sample.key, are ignored too: give them another name.)
+.env
+.env.*
+!.env.example
+.envrc
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ecdsa*
+id_ed25519*
+!id_*.pub
+
+# A local database and uploads from trying the module out, in the module's own folder
+# only (an app may ship a folder of its own called media/).
+/*.sqlite3*
+/media/

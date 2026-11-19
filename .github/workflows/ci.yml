@@ -1,0 +1,189 @@
+# Runs the same checks as the pre-commit hooks and the README on GitHub, for every
+# pull request and push to main, so every pull request shows whether they pass (the
+# hooks can be skipped locally). Results: the pull request's "Checks" tab.
+# Needs uv.lock committed (`uv lock`, see the README).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# The workflow only reads the repository.
+permissions:
+  contents: read
+
+# A newer push to a pull request cancels the run for the older one. Every push to main
+# gets a group of its own, so each of its runs finishes.
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  # The uv line the module requires (required-version in pyproject.toml); keep them in
+  # step.
+  UV_VERSION: "0.12.24"
+  # Every uv command refuses a uv.lock that doesn't match pyproject.toml.
+  UV_LOCKED: "1"
+  # Same gitleaks version as .pre-commit-config.yaml (keep them in step).
+  GITLEAKS_IMAGE: ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # Actions are pinned to commit hashes (tags can be moved); the comment says the
+      # version. Dependabot keeps them up to date.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+
+  test:
+    name: Tests (${{ matrix.database }}, ${{ matrix.versions }} versions)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # Each supported database (PostgreSQL 18, what projects made from capy-project run, and
+        # SQLite) with the locked versions, plus SQLite once with the lowest version
+        # pyproject.toml allows for each direct dependency (e.g. Django 6.1 while
+        # uv.lock has a newer 6.x), since projects may run any of them.
+        include:
+          - {database: sqlite, versions: locked}
+          - {database: postgres, versions: locked}
+          - {database: sqlite, versions: lowest}
+    services:
+      postgres:
+        # Only started for the Postgres run (an empty image means no service).
+        image: ${{ matrix.database == 'postgres' && 'postgres:18-trixie' || '' }}
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app  # a throwaway database that only exists for this job
+          POSTGRES_DB: module_tests
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app -h 127.0.0.1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+          # The lowest run gets a cache of its own, so what it downloads never reaches
+          # the other jobs.
+          cache-suffix: ${{ matrix.versions }}
+      - if: matrix.versions == 'locked'
+        run: uv sync --locked
+      # Re-resolves to the lowest allowed versions (uv.lock is only changed on the
+      # runner, never committed). Packages it picks without uv.lock must be a week old,
+      # like Dependabot's wait, so a release published minutes ago can't run here.
+      - if: matrix.versions == 'lowest'
+        env:
+          UV_LOCKED: "false"
+          UV_EXCLUDE_NEWER: "7 days"
+        run: uv sync --resolution lowest-direct
+      # The tests log in as a role like the app login of a project made from capy-project:
+      # not a superuser, so a migration that needs one fails here first. CREATEDB only so
+      # pytest-django can make its test database.
+      - name: Create a login like a project's
+        if: matrix.database == 'postgres'
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: >-
+          docker exec "$POSTGRES_CONTAINER" psql -U app -d module_tests -v ON_ERROR_STOP=1
+          -c "CREATE ROLE module LOGIN PASSWORD 'module'
+          NOSUPERUSER CREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS"
+      # -rs lists any skipped tests, with their reasons, at the end of the log.
+      - name: Tests with coverage (fails below 80%)
+        env:
+          DATABASE: ${{ matrix.database }}
+        run: |
+          if [ "$DATABASE" = "postgres" ]; then
+            export DATABASE_URL=postgres://module:module@localhost:5432/module_tests
+          fi
+          uv run --no-sync pytest --cov -rs
+
+  audit:
+    name: Dependency vulnerabilities (pip-audit)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+      # The README's command: a failed or out-of-date export fails the job.
+      - run: >-
+          (f=$(mktemp) && trap 'rm -f "$f"' EXIT
+          && uv export --locked --format requirements-txt --no-emit-project --quiet -o "$f"
+          && uv run pip-audit --disable-pip --require-hashes -r "$f")
+
+  package:
+    name: Package (only the module ships)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2  # v10.3.3
+        with:
+          version: ${{ env.UV_VERSION }}
+      - run: uv build --wheel --out-dir dist
+      # Fails if the wheel holds anything besides the module's own package and its
+      # metadata: tests (with their settings), hidden files and folders or anything at
+      # the top level would be installed into every project.
+      - name: Check the wheel's contents
+        run: |
+          python3 - <<'EOF'
+          import glob, tomllib, zipfile
+          package = tomllib.load(open("pyproject.toml", "rb"))["tool"]["uv"]["build-backend"]["module-name"]
+          (wheel,) = glob.glob("dist/*.whl")
+          names = [n for n in zipfile.ZipFile(wheel).namelist() if not n.split("/")[0].endswith(".dist-info")]
+          print("The wheel holds:", *names, sep="\n  ")
+          def is_test(name):
+              # A tests/ or test/ folder in the package's code (one under templates/,
+              # jinja2/ or static/ is page content), Django's tests.py and test.py,
+              # conftest.py, and the file names pytest collects (test_*.py, *_test.py).
+              # Whole names only, so a test_data/ folder or a test_page.html can ship.
+              folders, file = name.split("/")[1:-1], name.split("/")[-1]
+              in_code = not {"templates", "jinja2", "static"} & set(folders)
+              test_folder = in_code and bool({"tests", "test"} & set(folders))
+              test_file = file in ("tests.py", "test.py", "conftest.py") or (
+                  file.endswith(".py") and (file.startswith("test_") or file.endswith("_test.py")))
+              return test_folder or test_file
+          def is_hidden(name):
+              return any(part.startswith(".") for part in name.split("/"))
+          wrong = [
+              n for n in names
+              if n.split("/")[0] != package or is_test(n) or is_hidden(n)
+          ]
+          assert not wrong, f"Only the {package} package may ship, without tests: {wrong}"
+          EOF
+
+  secrets:
+    name: Secrets (gitleaks, whole history)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0  # the whole history, not just the latest commit
+          persist-credentials: false
+      - run: docker run --rm -v "$PWD:/repo:ro" "$GITLEAKS_IMAGE" git /repo --redact
