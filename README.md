@@ -137,8 +137,14 @@ differs. From the repo root:
 ```bash
 uv sync --group demo   # installs capy-theme + the Tailwind CLI (demo-only deps)
 uv run python demo/manage.py migrate
+uv run python demo/manage.py seed_theme   # publishes a light/dark theme so the header renders
 uv run python demo/manage.py tailwind runserver   # http://localhost:8000/
 ```
+
+`seed_theme` (a dev-only command in `demo/demo_theme/`, never shipped) creates,
+publishes and activates a simple light/dark theme so the header's mode toggle shows.
+It does nothing if a theme is already active, so it's safe to re-run. To design a
+real theme, log in to `/admin/` and use capy-theme's admin instead.
 
 ## Settings
 
