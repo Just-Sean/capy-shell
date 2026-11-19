@@ -52,7 +52,5 @@ def get_svg(name: str) -> str:
     CAPY_SHELL_ICON_DIRS is not served a stale result.
     """
     if not NAME_RE.fullmatch(name):
-        raise IconError(
-            f"Invalid icon name {name!r}: use lowercase letters, digits and hyphens."
-        )
+        raise IconError(f"Invalid icon name {name!r}: use lowercase letters, digits and hyphens.")
     return _load(name, _search_dirs())

@@ -185,7 +185,7 @@ The starter set: `menu`, `x`, `chevron-down`, `chevron-right`, `house`, `setting
 folder of `<name>.svg` files. Those directories are searched before the built-ins:
 
 ```python
-CAPY_SHELL_ICON_DIRS = [BASE_DIR / "icons"]   # your icons/menu.svg wins over ours
+CAPY_SHELL_ICON_DIRS = [BASE_DIR / "icons"]  # your icons/menu.svg wins over ours
 ```
 
 Use normalized SVGs (no `width`/`height`/`class` on the root `<svg>`,
