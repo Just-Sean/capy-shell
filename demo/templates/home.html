@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}Capy Shell demo — home{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <h1 class="text-3xl font-bold">Capy Shell</h1>
+  <p class="max-w-prose">
+    The app shell renders this page inside its header and content container.
+    Feature modules extend <code class="rounded bg-base-200 px-1">layout.html</code>
+    and fill the content block. More regions — the left nav sidebar, an optional
+    aside, and a footer — arrive in later features.
+  </p>
+
+  <div class="flex flex-wrap items-center gap-2">
+    <button class="btn btn-primary">Primary</button>
+    <button class="btn">Default</button>
+    <button class="btn btn-ghost">Ghost</button>
+    <span class="badge badge-accent">Badge</span>
+  </div>
+
+  <div class="card max-w-md bg-base-200 shadow-md">
+    <div class="card-body">
+      <h2 class="card-title">A card</h2>
+      <p>Styled by daisyUI, coloured by the active capy-theme. Switch the mode with
+        the toggle in the header.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

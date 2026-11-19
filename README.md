@@ -94,12 +94,56 @@ In a project made from capy-project, with its database running
    uv run pytest
    ```
 
+### Wiring the app shell
+
+capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` and
+`{% theme_mode_toggle %}`), plus three bits of wiring:
+
+1. Add `"capy_shell.context_processors.shell"` to the template
+   `OPTIONS["context_processors"]`.
+2. Point the project's `layout.html` at the shell and fill its brand and
+   header-action slots (this is the one-line injection step 5 refers to):
+
+   ```html
+   {% extends "capy_shell/base.html" %}
+   {% load capy_theme %}
+   {% block shell_brand %}<a href="/">{% theme_logo %}</a>{% endblock %}
+   {% block shell_header_actions %}{% theme_mode_toggle %}{% endblock %}
+   ```
+
+   The project's `base.html` must expose a `{% block body %}` inside `<body>`
+   (the shell fills it). Feature modules extend `layout.html` and fill
+   `{% block content %}`.
+3. Add capy-shell's templates to the project's Tailwind `@source`, so the daisyUI
+   classes in them are built (adjust the Python version to match):
+
+   ```css
+   @source "../.venv/lib/python3.14/site-packages/capy_shell/templates";
+   ```
+
+## Running the demo
+
+A dev-only demo site (`demo/`) shows the shell. It installs capy-theme as a sibling
+checkout — see `pyproject.toml`'s `[tool.uv.sources]`; adjust the path if yours
+differs. From the repo root:
+
+```bash
+uv sync --group demo   # installs capy-theme + the Tailwind CLI (demo-only deps)
+uv run python demo/manage.py migrate
+uv run python demo/manage.py tailwind runserver   # http://localhost:8000/
+```
+
 ## Settings
 
-None yet. Each setting a project can change is read with the
-`CAPY_SHELL_` prefix and a sensible default, and listed here with its
-default and what it does, e.g.
-`getattr(settings, "CAPY_SHELL_CACHE_SECONDS", 300)`.
+Each setting is read with the `CAPY_SHELL_` prefix and a sensible default (see
+`conf.py`). capy-shell owns page *structure and geometry*; the *look* (colours,
+type, spacing) comes from capy-theme's daisyUI tokens, so there are few here.
+
+| Setting | Default | What it does |
+|---|---|---|
+| `CAPY_SHELL_CONTENT_MAX_WIDTH` | `"max-w-7xl"` | Tailwind max-width for the content container pages render in, so lines stay readable on wide screens. A page needing full width overrides the container in its own template. |
+| `CAPY_SHELL_CONTENT_PADDING` | `"px-4 py-6"` | Tailwind padding for the content container. |
+| `CAPY_SHELL_HOME_URL` | `"/"` | Where the header's brand/logo links. |
 
 ## Upgrading
 

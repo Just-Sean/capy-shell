@@ -31,3 +31,9 @@ id_ed25519*
 # only (an app may ship a folder of its own called media/).
 /*.sqlite3*
 /media/
+
+# Demo site (development only)
+demo/db.sqlite3
+demo/media/
+demo/static/css/tailwind.css
+demo/.django_tailwind_cli/

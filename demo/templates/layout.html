@@ -1,0 +1,18 @@
+{% extends "capy_shell/base.html" %}
+{% comment %}
+  The project's layout. It extends the shell (one line) and fills the shell's
+  brand and header-action slots with capy-theme's tags. Feature modules extend
+  this template and fill {% block content %}.
+{% endcomment %}
+{% load capy_theme %}
+
+{% block shell_brand %}
+  <a href="/" class="flex items-center gap-2 text-lg font-bold">
+    {% if theme.logo_url %}{% theme_logo %}{% else %}Capy Shell demo{% endif %}
+  </a>
+{% endblock %}
+
+{% block shell_header_actions %}
+  {% theme_mode_toggle %}
+  <a href="{% url 'admin:index' %}" class="btn btn-ghost btn-sm">Admin</a>
+{% endblock %}
