@@ -86,7 +86,7 @@ def test_sidebar_is_a_drawer_with_a_burger():
     assert 'id="capy-shell-drawer-button"' in html
     assert 'aria-controls="capy-shell-nav"' in html
     assert 'aria-expanded="false"' in html
-    # The drawer wrapper is a labelled <nav> landmark with the controlled id.
+    # The drawer wrapper is a labeled <nav> landmark with the controlled id.
     assert '<nav id="capy-shell-nav" aria-label=' in html
     # The backdrop that closes the drawer.
     assert 'id="capy-shell-overlay"' in html
@@ -118,6 +118,9 @@ def test_drawer_styles_and_script_ship():
     # The script enhances the same checkbox and keeps the burger's state in sync.
     assert "capy-shell-drawer-toggle" in js
     assert "aria-expanded" in js
+    # The focus-trap counts <summary> as a tab stop (a nav can be built from
+    # <details><summary>), so it must be in the focusable selector.
+    assert "summary" in js
 
 
 def test_safelist_comment_covers_the_settings_driven_classes():

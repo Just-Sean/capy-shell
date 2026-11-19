@@ -25,9 +25,13 @@
   var mobile = window.matchMedia("(max-width: 767.98px)");
 
   function focusables() {
+    // The native focusable elements, in document order. `summary` matters here: a
+    // nav built from <details><summary> is a real tab stop, and leaving it out
+    // would mis-compute the first/last stop and let the trap leak.
     var selector =
       'a[href], button:not([disabled]), input:not([disabled]), ' +
-      'select:not([disabled]), textarea:not([disabled]), ' +
+      'select:not([disabled]), textarea:not([disabled]), summary, ' +
+      'iframe, audio[controls], video[controls], [contenteditable], ' +
       '[tabindex]:not([tabindex="-1"])';
     return Array.prototype.filter.call(
       drawer.querySelectorAll(selector),

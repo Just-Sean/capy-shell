@@ -142,9 +142,10 @@ capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` an
    the shell's `drawer.js` adds the keyboard and focus behavior — `aria-expanded` on
    the burger, focus moved into the drawer and back to the burger, Escape to close,
    and a focus trap while it's open. The backdrop and Escape both close it. Fill
-   `shell_nav` with the menu contents only: the shell wraps them in the labelled
-   `<nav>` landmark and the drawer itself, so don't add your own `<nav>` there (the
-   aside and footer blocks get no landmark — add one if their content needs it).
+   each region block with its contents only: the shell wraps `shell_nav` in a
+   labeled `<nav>` landmark (and the drawer around it), `shell_aside` in an
+   `<aside>`, and `shell_footer` in a `<footer>`, so don't add your own wrapper
+   element inside these blocks.
 
    The shell styles **plain links in page content** (an `<a>` with no class, inside
    the content area) with the theme's color and an underline, so content links don't
