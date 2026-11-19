@@ -39,7 +39,14 @@ dev = [
     "pre-commit>=4.7",          # the commit checks (.pre-commit-config.yaml)
     "pip-audit>=2.10",          # checks the locked dependencies for known vulnerabilities
     "pytest-cov>=7.1",          # test coverage (uv run pytest --cov)
+    "django-tailwind-cli>=2.21",  # demo only: builds the demo's Tailwind/daisyUI CSS
+    "capy-theme",                 # demo only: the shell is themed by capy-theme (see tool.uv.sources)
 ]
+
+[tool.uv.sources]
+# Demo only. capy-theme is a sibling checkout on the developer's machine; the demo
+# installs it so the shell is themed. Adjust the path if yours is somewhere else.
+capy-theme = { path = "../../../Documents/Todo/Projects/capy-theme" }
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tests.settings"
@@ -62,6 +69,7 @@ select = ["E", "W", "F", "I", "B", "S", "DJ", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = ["S101"]   # pytest's checks are plain `assert` statements
+"demo/demo_site/settings.py" = ["S105"]   # the demo's dev-only SECRET_KEY
 
 # Test coverage, measured with `uv run pytest --cov` (pytest-cov).
 [tool.coverage.run]

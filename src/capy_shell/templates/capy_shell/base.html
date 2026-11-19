@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% comment %}
+  The app shell. Renders a header (the theme logo + light/dark toggle) and the
+  content container that pages render into, inside the project's base.html body.
+
+  A project's layout.html extends this in one line:  {% extends "capy_shell/base.html" %}
+  Feature modules then extend layout.html and fill {% block content %}.
+
+  Later features add the left nav sidebar, an optional aside, and a footer.
+  The project's base.html must expose a {% block body %} inside <body>, and have
+  capy_theme installed (for the logo and mode toggle) and "capy_shell.context_processors.shell"
+  in its template context processors.
+{% endcomment %}
+{% load capy_theme %}
+
+{% block body %}
+<a href="#capy-shell-main"
+   class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:btn focus:btn-primary">
+  Skip to content
+</a>
+
+<header class="navbar border-b border-base-300 bg-base-200 px-4">
+  <div class="flex-1">
+    {% block shell_brand %}
+      <a href="{{ shell.home_url }}" class="flex items-center gap-2 text-lg font-bold">
+        {% theme_logo %}
+      </a>
+    {% endblock %}
+  </div>
+  <nav class="flex flex-none items-center gap-2" aria-label="User and settings">
+    {% theme_mode_toggle %}
+    {% block shell_header_actions %}{% endblock %}
+  </nav>
+</header>
+
+<main id="capy-shell-main" class="mx-auto w-full {{ shell.content_max_width }} {{ shell.content_padding }}">
+  {% block content %}{% endblock %}
+</main>
+
+{% block shell_footer %}{% endblock %}
+{% endblock %}
