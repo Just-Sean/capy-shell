@@ -2,10 +2,12 @@
 {% comment %}
   The app shell. Renders the header (the theme logo + light/dark toggle) and the
   optional sidebar / aside / footer regions around the content container pages
-  render into, inside the project's base.html body. The regions are empty
-  scaffolding here, shown and sized by the CAPY_SHELL_* settings (see conf.py); the
-  responsive burger-menu drawer that collapses the sidebar on small screens is a
-  later feature.
+  render into, inside the project's base.html body. Which regions appear and how
+  they behave come from the CAPY_SHELL_* settings (see conf.py). Below Tailwind's
+  `md` breakpoint the left-nav sidebar becomes an off-canvas drawer opened by a
+  burger button in the header; at `md` and up it's a docked column. The drawer
+  opens and closes on its own (a checkbox + CSS, so it works without JavaScript);
+  static/capy_shell/drawer.js adds the keyboard and focus behavior on top.
 
   A project's layout.html extends this in one line:  {% extends "capy_shell/base.html" %}
   Feature modules then extend layout.html and fill {% block content %}.
@@ -29,6 +31,7 @@
 
 {% block head %}{{ block.super }}
   <link rel="stylesheet" href="{% static 'capy_shell/shell.css' %}">
+  <script src="{% static 'capy_shell/drawer.js' %}" defer></script>
 {% endblock %}
 
 {% block body %}
@@ -37,8 +40,31 @@
   Skip to content
 </a>
 
+{% if shell.sidebar %}
+  {# Drawer state: a hidden checkbox the burger and the backdrop toggle. shell.css
+     reads it with :has() to slide the sidebar in below `md`; at `md`+ the sidebar
+     is docked and this has no effect. drawer.js keeps aria-expanded in sync and
+     adds the keyboard and focus handling. #}
+  <input type="checkbox" id="capy-shell-drawer-toggle" class="hidden">
+{% endif %}
+
 {% block shell_header %}
 <header class="navbar border-b border-base-300 bg-base-200 px-4 {% if shell.header_sticky %}sticky top-0 z-30{% endif %}">
+  {% if shell.sidebar %}
+    <label for="capy-shell-drawer-toggle" id="capy-shell-drawer-button"
+           role="button" tabindex="0"
+           aria-controls="capy-shell-nav" aria-expanded="false"
+           aria-label="Open navigation menu"
+           class="btn btn-square btn-ghost mr-2 md:hidden">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           stroke-linejoin="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </label>
+  {% endif %}
   <div class="flex-1">
     {% block shell_brand %}
       <a href="{{ shell.home_url }}" class="flex items-center gap-2 text-lg font-bold">
@@ -53,16 +79,20 @@
 </header>
 {% endblock %}
 
-{# The regions row: optional sidebar, the content, an optional aside. The sidebar
-   and aside are desktop columns here and are hidden on small screens; the
-   responsive drawer that brings the sidebar back as a burger menu is a later
-   feature. Each is rendered only when its setting is on. #}
+{# The regions row: optional sidebar, the content, an optional aside. Below `md`
+   the sidebar is an off-canvas drawer (see shell.css) with a backdrop; at `md`+
+   it's a docked column, sticky when CAPY_SHELL_SIDEBAR_STICKY is on. The aside is
+   a desktop column, hidden on small screens. Each renders only when its setting
+   is on. #}
 <div class="flex">
   {% if shell.sidebar %}
-    <div class="hidden shrink-0 border-r border-base-300 md:block {{ shell.sidebar_width }}
+    <label for="capy-shell-drawer-toggle" id="capy-shell-overlay" aria-hidden="true"
+           class="md:hidden"></label>
+    <nav id="capy-shell-nav" aria-label="Primary navigation"
+         class="shrink-0 border-r border-base-300 bg-base-100 md:block {{ shell.sidebar_width }}
                 {% if shell.sidebar_sticky %}md:sticky md:self-start md:overflow-y-auto {% if shell.header_sticky %}md:top-16 md:max-h-[calc(100dvh_-_4rem)]{% else %}md:top-0 md:max-h-screen{% endif %}{% endif %}">
       {% block shell_nav %}{% endblock %}
-    </div>
+    </nav>
   {% endif %}
 
   <main id="capy-shell-main" class="min-w-0 flex-1">

@@ -135,11 +135,24 @@ capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` an
    you have something to put in its block: an enabled aside or footer with nothing
    in it is an empty landmark, and an enabled sidebar is an empty column.
 
+   **On small screens the left-nav sidebar becomes a drawer.** Below Tailwind's `md`
+   breakpoint (768px) it slides in from the left over a backdrop, opened by a burger
+   button the shell adds to the header; at `md` and up it's the docked column. It
+   opens and closes on its own (a checkbox and CSS, so it works with JavaScript off);
+   the shell's `drawer.js` adds the keyboard and focus behavior — `aria-expanded` on
+   the burger, focus moved into the drawer and back to the burger, Escape to close,
+   and a focus trap while it's open. The backdrop and Escape both close it. Fill
+   each region block with its contents only: the shell wraps `shell_nav` in a
+   labeled `<nav>` landmark (and the drawer around it), `shell_aside` in an
+   `<aside>`, and `shell_footer` in a `<footer>`, so don't add your own wrapper
+   element inside these blocks.
+
    The shell styles **plain links in page content** (an `<a>` with no class, inside
    the content area) with the theme's color and an underline, so content links don't
    read as unstyled text after Tailwind's reset — without touching daisyUI-classed
-   buttons, badges or links. That styling ships in `capy_shell/static/capy_shell/shell.css`,
-   loaded by the `{% block head %}` above.
+   buttons, badges or links. That styling ships in `capy_shell/static/capy_shell/shell.css`
+   and the drawer's behavior in `capy_shell/static/capy_shell/drawer.js` (loaded with
+   `defer`); both are added by the `{% block head %}` above.
 3. Add capy-shell's templates to the project's Tailwind `@source`, so the daisyUI
    classes in them are built (adjust the Python version to match):
 
@@ -185,8 +198,9 @@ type, spacing) comes from capy-theme's daisyUI tokens, so there are few here.
 | `CAPY_SHELL_ASIDE_STICKY` | `True` | Keep the aside in view as the page scrolls (below the header). |
 | `CAPY_SHELL_FOOTER` | `False` | Render the footer region. |
 
-The sidebar and aside are desktop columns and are hidden on small screens; the
-responsive drawer that brings the sidebar back as a burger menu is a later feature.
+The aside is a desktop column, hidden on small screens. The left-nav sidebar is a
+desktop column too, but on small screens it becomes a drawer opened by a burger in
+the header (see [Wiring the app shell](#wiring-the-app-shell)).
 A width is a Tailwind class, so the build must include it: the defaults are shipped
 with capy-shell, and a project that changes one makes sure its Tailwind build sees
 the new class (it will if the class appears in a scanned template, or add it to the

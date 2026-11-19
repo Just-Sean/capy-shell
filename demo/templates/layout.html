@@ -20,26 +20,25 @@
 {% comment %}
   Placeholder content for the shell's regions, so they're visible while building.
   Real nav (auto-collected from installed modules, admin-editable) is a later
-  feature; here it's just sample links. The aside shows only if CAPY_SHELL_ASIDE
-  is turned on; the footer shows only if CAPY_SHELL_FOOTER is on (it is, in the
-  demo settings).
+  feature; here it's just sample links. The shell wraps shell_nav in the labeled
+  <nav> landmark and the responsive drawer, so fill it with the menu only. The
+  aside shows only if CAPY_SHELL_ASIDE is turned on; the footer shows only if
+  CAPY_SHELL_FOOTER is on (it is, in the demo settings).
 {% endcomment %}
 {% block shell_nav %}
-  <nav aria-label="Primary" class="p-4">
-    <ul class="menu w-full gap-1">
-      <li><a href="/" class="active">Home</a></li>
-      <li><a href="{% url 'admin:index' %}">Admin</a></li>
-      <li>
-        <details open>
-          <summary>Examples</summary>
-          <ul>
-            <li><a href="/">A nested link</a></li>
-            <li><a href="/">Another one</a></li>
-          </ul>
-        </details>
-      </li>
-    </ul>
-  </nav>
+  <ul class="menu w-full gap-1 p-4">
+    <li><a href="/" class="active">Home</a></li>
+    <li><a href="{% url 'admin:index' %}">Admin</a></li>
+    <li>
+      <details open>
+        <summary>Examples</summary>
+        <ul>
+          <li><a href="/">A nested link</a></li>
+          <li><a href="/">Another one</a></li>
+        </ul>
+      </details>
+    </li>
+  </ul>
 {% endblock %}
 
 {% block shell_aside %}

@@ -19,12 +19,13 @@ DEFAULTS = {
     # Where the header's brand/logo links (a path or a name the project resolves).
     "CAPY_SHELL_HOME_URL": "/",
     # The chrome regions around the content, and how each behaves. The header is
-    # always present (it holds the brand, mode toggle and — later — the burger);
-    # the sidebar, aside and footer are present only when turned on. "Sticky" keeps
-    # a region in view as the page scrolls; widths are Tailwind classes. The regions
-    # are empty until something fills their blocks (nav content arrives in a later
-    # feature); the responsive drawer that collapses the sidebar on small screens is
-    # a later feature too.
+    # always present (it holds the brand, the mode toggle and, on small screens,
+    # the burger that opens the sidebar drawer); the sidebar, aside and footer are
+    # present only when turned on. "Sticky" keeps a region in view as the page
+    # scrolls; widths are Tailwind classes. The regions are empty until something
+    # fills their blocks (nav content arrives in a later feature). On small screens
+    # the sidebar collapses into a responsive burger drawer (see base.html /
+    # shell.css).
     "CAPY_SHELL_HEADER_STICKY": True,
     "CAPY_SHELL_SIDEBAR": True,
     "CAPY_SHELL_SIDEBAR_WIDTH": "w-64",
