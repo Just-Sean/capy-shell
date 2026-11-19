@@ -116,8 +116,22 @@ capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` an
    `<body>` (the shell fills it). Feature modules extend `layout.html` and fill
    `{% block content %}`.
 
+   The shell wraps the content in a header + regions layout. Besides `shell_brand`
+   and `shell_header_actions`, the layout exposes these blocks to fill (all optional):
+
+   | Block | Region |
+   |---|---|
+   | `shell_header` | The whole top bar (override to replace it). |
+   | `shell_nav` | The left-nav sidebar (shown when `CAPY_SHELL_SIDEBAR` is on). |
+   | `shell_aside` | The right-hand aside (shown when `CAPY_SHELL_ASIDE` is on). |
+   | `shell_footer` | The footer (shown when `CAPY_SHELL_FOOTER` is on). |
+
+   Which regions appear, whether they stick, and their widths are set with
+   `CAPY_SHELL_*` settings (see [Settings](#settings)). Only fill a region's block
+   when its setting is on: an enabled region with nothing in it is an empty landmark.
+
    The shell styles **plain links in page content** (an `<a>` with no class, inside
-   the content area) with the theme's colour and an underline, so content links don't
+   the content area) with the theme's color and an underline, so content links don't
    read as unstyled text after Tailwind's reset — without touching daisyUI-classed
    buttons, badges or links. That styling ships in `capy_shell/static/capy_shell/shell.css`,
    loaded by the `{% block head %}` above.
@@ -149,7 +163,7 @@ real theme, log in to `/admin/` and use capy-theme's admin instead.
 ## Settings
 
 Each setting is read with the `CAPY_SHELL_` prefix and a sensible default (see
-`conf.py`). capy-shell owns page *structure and geometry*; the *look* (colours,
+`conf.py`). capy-shell owns page *structure and geometry*; the *look* (colors,
 type, spacing) comes from capy-theme's daisyUI tokens, so there are few here.
 
 | Setting | Default | What it does |
@@ -157,6 +171,21 @@ type, spacing) comes from capy-theme's daisyUI tokens, so there are few here.
 | `CAPY_SHELL_CONTENT_MAX_WIDTH` | `"max-w-7xl"` | Tailwind max-width for the content container pages render in, so lines stay readable on wide screens. A page needing full width overrides the container in its own template. |
 | `CAPY_SHELL_CONTENT_PADDING` | `"px-4 py-6"` | Tailwind padding for the content container. |
 | `CAPY_SHELL_HOME_URL` | `"/"` | Where the header's brand/logo links. |
+| `CAPY_SHELL_HEADER_STICKY` | `True` | Keep the header in view as the page scrolls. |
+| `CAPY_SHELL_SIDEBAR` | `True` | Render the left-nav region. |
+| `CAPY_SHELL_SIDEBAR_WIDTH` | `"w-64"` | The sidebar's width (a Tailwind width class). |
+| `CAPY_SHELL_SIDEBAR_STICKY` | `True` | Keep the sidebar in view as the page scrolls (below the header). |
+| `CAPY_SHELL_ASIDE` | `False` | Render the optional right-hand aside region. |
+| `CAPY_SHELL_ASIDE_WIDTH` | `"w-64"` | The aside's width (a Tailwind width class). |
+| `CAPY_SHELL_ASIDE_STICKY` | `True` | Keep the aside in view as the page scrolls (below the header). |
+| `CAPY_SHELL_FOOTER` | `False` | Render the footer region. |
+
+The sidebar and aside are desktop columns and are hidden on small screens; the
+responsive drawer that brings the sidebar back as a burger menu is a later feature.
+A width is a Tailwind class, so the build must include it: the defaults are shipped
+with capy-shell, and a project that changes one makes sure its Tailwind build sees
+the new class (it will if the class appears in a scanned template, or add it to the
+project's Tailwind source).
 
 ## Upgrading
 

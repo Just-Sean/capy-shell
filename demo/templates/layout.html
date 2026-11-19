@@ -16,3 +16,42 @@
 {% block shell_header_actions %}
   <a href="{% url 'admin:index' %}" class="btn btn-ghost btn-sm">Admin</a>
 {% endblock %}
+
+{% comment %}
+  Placeholder content for the shell's regions, so they're visible while building.
+  Real nav (auto-collected from installed modules, admin-editable) is a later
+  feature; here it's just sample links. The aside shows only if CAPY_SHELL_ASIDE
+  is turned on; the footer shows only if CAPY_SHELL_FOOTER is on (it is, in the
+  demo settings).
+{% endcomment %}
+{% block shell_nav %}
+  <nav aria-label="Primary" class="p-4">
+    <ul class="menu w-full gap-1">
+      <li><a href="/" class="active">Home</a></li>
+      <li><a href="{% url 'admin:index' %}">Admin</a></li>
+      <li>
+        <details open>
+          <summary>Examples</summary>
+          <ul>
+            <li><a href="/">A nested link</a></li>
+            <li><a href="/">Another one</a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
+  </nav>
+{% endblock %}
+
+{% block shell_aside %}
+  <div class="p-4 text-sm text-base-content/70">
+    <p class="font-semibold text-base-content">Aside</p>
+    <p class="mt-2">An optional right-hand region. Turn it on with
+      <code class="rounded bg-base-300 px-1">CAPY_SHELL_ASIDE = True</code>.</p>
+  </div>
+{% endblock %}
+
+{% block shell_footer %}
+  <div class="mx-auto w-full max-w-7xl px-4 py-6 text-sm text-base-content/70">
+    Capy Shell demo — footer region.
+  </div>
+{% endblock %}

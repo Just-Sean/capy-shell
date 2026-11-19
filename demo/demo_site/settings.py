@@ -79,3 +79,11 @@ TAILWIND_CLI_DIST_CSS = "css/tailwind.css"  # relative to demo/static/
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# capy-shell chrome regions. The sidebar is on by default; turn the footer on to
+# show that region too. Flip these to see the shell's regions appear and disappear
+# (see capy_shell/conf.py for every CAPY_SHELL_* setting and its default):
+#   CAPY_SHELL_SIDEBAR = False      # hide the left nav region
+#   CAPY_SHELL_ASIDE = True         # show the optional right aside
+#   CAPY_SHELL_HEADER_STICKY = False  # let the header scroll away
+CAPY_SHELL_FOOTER = True

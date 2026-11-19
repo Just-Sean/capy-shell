@@ -14,6 +14,16 @@
 {% endcomment %}
 {% load capy_theme static %}
 
+{% comment %}
+  Tailwind only generates class names it can see in the source it scans, and it
+  can't see the ones that come from settings (the region widths and the content
+  container's width and padding, filled in below from `shell.*`). List the shipped
+  defaults here, in this template the project's Tailwind build already scans, so
+  they're always built. A project that overrides a width setting lists its own
+  class the same way in its Tailwind source (see the README).
+  tailwind-safelist: w-64 max-w-7xl px-4 py-6
+{% endcomment %}
+
 {% block head %}{{ block.super }}
   <link rel="stylesheet" href="{% static 'capy_shell/shell.css' %}">
 {% endblock %}
@@ -24,7 +34,8 @@
   Skip to content
 </a>
 
-<header class="navbar border-b border-base-300 bg-base-200 px-4">
+{% block shell_header %}
+<header class="navbar border-b border-base-300 bg-base-200 px-4 {% if shell.header_sticky %}sticky top-0 z-30{% endif %}">
   <div class="flex-1">
     {% block shell_brand %}
       <a href="{{ shell.home_url }}" class="flex items-center gap-2 text-lg font-bold">
@@ -37,10 +48,37 @@
     {% block shell_header_actions %}{% endblock %}
   </nav>
 </header>
+{% endblock %}
 
-<main id="capy-shell-main" class="mx-auto w-full {{ shell.content_max_width }} {{ shell.content_padding }}">
-  {% block content %}{% endblock %}
-</main>
+{# The regions row: optional sidebar, the content, an optional aside. The sidebar
+   and aside are desktop columns here and are hidden on small screens; the
+   responsive drawer that brings the sidebar back as a burger menu is a later
+   feature. Each is rendered only when its setting is on. #}
+<div class="flex">
+  {% if shell.sidebar %}
+    <div class="hidden shrink-0 border-r border-base-300 md:block {{ shell.sidebar_width }}
+                {% if shell.sidebar_sticky %}md:sticky md:top-16 md:self-start md:max-h-screen md:overflow-y-auto{% endif %}">
+      {% block shell_nav %}{% endblock %}
+    </div>
+  {% endif %}
 
-{% block shell_footer %}{% endblock %}
+  <main id="capy-shell-main" class="min-w-0 flex-1">
+    <div class="mx-auto w-full {{ shell.content_max_width }} {{ shell.content_padding }}">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  {% if shell.aside %}
+    <aside class="hidden shrink-0 border-l border-base-300 md:block {{ shell.aside_width }}
+                  {% if shell.aside_sticky %}md:sticky md:top-16 md:self-start md:max-h-screen md:overflow-y-auto{% endif %}">
+      {% block shell_aside %}{% endblock %}
+    </aside>
+  {% endif %}
+</div>
+
+{% if shell.footer %}
+  <footer class="border-t border-base-300 bg-base-200">
+    {% block shell_footer %}{% endblock %}
+  </footer>
+{% endif %}
 {% endblock %}
