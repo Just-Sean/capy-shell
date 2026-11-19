@@ -49,9 +49,9 @@ demo = [
 ]
 
 [tool.uv.sources]
-# Demo only. capy-theme is a sibling checkout on the developer's machine; the demo
-# installs it so the shell is themed. Adjust the path if yours is somewhere else.
-capy-theme = { path = "../../../Documents/Todo/Projects/capy-theme" }
+# Demo only — the shell is themed by capy-theme. From git (a tag), so CI and a fresh
+# checkout can resolve it; a local-path source can't be found off this machine.
+capy-theme = { git = "https://github.com/Just-Sean/capy-theme", tag = "v1.0.0" }
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tests.settings"

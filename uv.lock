@@ -131,7 +131,7 @@ requires-dist = [{ name = "django", specifier = ">=6.1,<7" }]
 
 [package.metadata.requires-dev]
 demo = [
-    { name = "capy-theme", directory = "../../../Documents/Todo/Projects/capy-theme" },
+    { name = "capy-theme", git = "https://github.com/Just-Sean/capy-theme?tag=v1.0.0" },
     { name = "django-tailwind-cli", specifier = ">=2.21" },
 ]
 dev = [
@@ -147,8 +147,8 @@ dev = [
 
 [[package]]
 name = "capy-theme"
-version = "1.0.1"
-source = { directory = "../../../Documents/Todo/Projects/capy-theme" }
+version = "1.0.0"
+source = { git = "https://github.com/Just-Sean/capy-theme?tag=v1.0.0#cb235afb8b72d7eb8823ffb71d74618e22d4eb3a" }
 dependencies = [
     { name = "brotli", marker = "platform_python_implementation == 'CPython'" },
     { name = "brotlicffi", marker = "platform_python_implementation != 'CPython'" },
@@ -158,33 +158,6 @@ dependencies = [
     { name = "fonttools", extra = ["woff"] },
     { name = "jsonschema" },
     { name = "pillow" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "brotli", marker = "platform_python_implementation == 'CPython'", specifier = ">=1.2.1" },
-    { name = "brotlicffi", marker = "platform_python_implementation != 'CPython'", specifier = ">=1.2.1.0" },
-    { name = "coloraide", specifier = ">=8,<9" },
-    { name = "defusedxml", specifier = ">=0.7.1,<0.8" },
-    { name = "django", specifier = ">=6.1,<7" },
-    { name = "fonttools", extras = ["woff"], specifier = ">=4.60.2,<5" },
-    { name = "jsonschema", specifier = ">=4.26,<5" },
-    { name = "pillow", specifier = ">=13" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "dj-database-url", specifier = ">=3.1" },
-    { name = "django-tailwind-cli", specifier = ">=4.8" },
-    { name = "djangorestframework", specifier = ">=3.16,<4" },
-    { name = "drf-spectacular", specifier = ">=0.28,<1" },
-    { name = "pip-audit", specifier = ">=2.10" },
-    { name = "pre-commit", specifier = ">=4.7" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.3" },
-    { name = "pytest", specifier = ">=9" },
-    { name = "pytest-cov", specifier = ">=7.1" },
-    { name = "pytest-django", specifier = ">=4.14" },
-    { name = "ruff", specifier = ">=0.17" },
 ]
 
 [[package]]
