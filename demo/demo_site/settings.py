@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "django_tailwind_cli",  # demo only: builds demo/static/css/tailwind.css
     "capy_theme",  # themes the shell (demo dev dependency)
     "capy_shell",
+    "demo_theme",  # demo only: the seed_theme management command
 ]
 
 MIDDLEWARE = [
