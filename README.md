@@ -261,8 +261,9 @@ isn't a list, or a duplicate `key` fails loudly at startup — a system check ca
 `manage.py check` and at boot, so a bad declaration fails the deploy, not an end user.
 
 The shell **renders this itself**: the `shell_nav` block runs `{% shell_nav %}` by
-default (override the block to customize), drawing the nav as a daisyUI menu in the
-sidebar — which collapses into the header's burger drawer on small screens. Per request
+default (override the block to customize), drawing the nav as a daisyUI menu. It's
+**responsive** — a horizontal menu in the header on wide (`lg`) screens, a docked left
+sidebar between `md` and `lg`, and the header's burger drawer below `md`. Per request
 it is **filtered by the user's permissions** (an entry with a `permission` the user
 lacks is hidden — an anonymous user sees only unpermissioned entries), each `url` is
 resolved to an `href` (a URL name via `reverse`, else the literal path), and the entry
@@ -271,9 +272,8 @@ are auto-escaped, icons go through the safe `{% icon %}` tag, and a `url` with a
 dangerous scheme (`javascript:` etc.) is rejected at the startup check.
 
 Nav is for **end-user** modules; admin-only tools belong in the Django admin, not here.
-Still to come in later features: a horizontal **top-nav on wide screens**, a **REST
-endpoint** for the same data, and **admin-editable overrides**. `get_nav`'s signature
-won't change as those land.
+Still to come in later features: a **REST endpoint** for the same data and
+**admin-editable overrides**. `get_nav`'s signature won't change as those land.
 
 ## Running the demo
 

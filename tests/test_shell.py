@@ -1,5 +1,6 @@
 """The shell's settings (conf), context processor, regions, content CSS and nav drawer."""
 
+import re
 from pathlib import Path
 
 from django.template.loader import render_to_string
@@ -9,7 +10,21 @@ import capy_shell
 from capy_shell import conf
 from capy_shell.context_processors import shell
 
-BASE_TEMPLATE = Path(capy_shell.__file__).parent / "templates/capy_shell/base.html"
+TEMPLATES_DIR = Path(capy_shell.__file__).parent / "templates"
+BASE_TEMPLATE = TEMPLATES_DIR / "capy_shell/base.html"
+
+
+def test_templates_have_no_multiline_hash_comments():
+    # Django's {# #} comment must be on one line; a multi-line one renders as visible
+    # text on the page. Use {% comment %} for multi-line. (This caught a real bug.)
+    for path in TEMPLATES_DIR.rglob("*.html"):
+        text = path.read_text()
+        for match in re.finditer(r"\{#", text):
+            end = text.find("#}", match.start())
+            assert end != -1, f"unclosed {{# in {path.name}"
+            assert "\n" not in text[match.start() : end], (
+                f"multi-line {{# #}} in {path.name} renders as text — use {{% comment %}}"
+            )
 
 
 def _render_shell():
