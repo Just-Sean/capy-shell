@@ -27,6 +27,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "capy_shell",
+    # Stand-in apps that declare nav (tests/navapp_*/nav.py), for the nav collection
+    # tests. Inert otherwise — no models, no URLs.
+    "tests.navapp_a",
+    "tests.navapp_b",
 ]
 
 MIDDLEWARE = [

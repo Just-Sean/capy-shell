@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "capy_theme",  # themes the shell (demo dev dependency)
     "capy_shell",
     "demo_theme",  # demo only: the seed_theme management command
+    "demo_pages",  # demo only: a stand-in end-user app that declares nav (demo_pages/nav.py)
 ]
 
 MIDDLEWARE = [
