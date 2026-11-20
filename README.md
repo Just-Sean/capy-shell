@@ -218,8 +218,14 @@ own `nav.py` — **plain data, importing nothing from capy-shell**:
 ```python
 # yourapp/nav.py
 NAV = [
-    {"key": "yourapp:home", "label": "Home", "url": "yourapp:home",
-     "icon": "house", "order": 10, "section": "You"},
+    {
+        "key": "yourapp:home",
+        "label": "Home",
+        "url": "yourapp:home",
+        "icon": "house",
+        "order": 10,
+        "section": "You",
+    },
 ]
 ```
 
@@ -240,7 +246,8 @@ code) and exposes the merged, section-ordered result through one interface:
 
 ```python
 from capy_shell.nav import get_nav
-get_nav(request)   # -> [NavSection(title, items), ...]
+
+get_nav(request)  # -> [NavSection(title, items), ...]
 ```
 
 That `get_nav(request)` signature is the **contract**: because modules depend only on
