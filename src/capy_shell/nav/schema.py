@@ -59,12 +59,13 @@ def validate(entry: object, *, source: str = "") -> NavItem:
         )
 
     for name in REQUIRED:
-        if not isinstance(entry[name], str) or not entry[name]:
-            raise NavError(f"{where}nav entry {name!r} must be a non-empty string.")
+        value = entry[name]
+        if not isinstance(value, str) or not value.strip():
+            raise NavError(f"{where}nav entry {name!r} must be a non-blank string.")
     for name in OPTIONAL_STR:
         value = entry.get(name)
-        if value is not None and not isinstance(value, str):
-            raise NavError(f"{where}nav entry {name!r} must be a string or None.")
+        if value is not None and (not isinstance(value, str) or not value.strip()):
+            raise NavError(f"{where}nav entry {name!r} must be a non-blank string or None.")
 
     order = entry.get("order", DEFAULT_ORDER)
     # bool is an int subclass; exclude it so order=True isn't quietly accepted.

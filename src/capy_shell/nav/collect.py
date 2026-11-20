@@ -53,17 +53,30 @@ def sections(items: list[NavItem]) -> list[NavSection]:
     return result
 
 
+def _import_nav(app_name: str):
+    """Import an app's ``nav`` module, or None if it has none.
+
+    A missing ``nav.py`` returns None; a real import error *inside* an existing
+    ``nav.py`` (a bad import in it) is re-raised, not hidden as "no nav.py".
+    """
+    module_name = f"{app_name}.nav"
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError as error:
+        if error.name == module_name:
+            return None
+        raise
+
+
 def _discover() -> list[tuple[str, object]]:
     found = []
     for config in apps.get_app_configs():
-        module_name = f"{config.name}.nav"
-        try:
-            module = importlib.import_module(module_name)
-        except ModuleNotFoundError as error:
-            if error.name == module_name:
-                continue  # This app simply has no nav.py.
-            raise  # A real import error *inside* an existing nav.py — don't hide it.
+        module = _import_nav(config.name)
+        if module is None:
+            continue
         raw = getattr(module, "NAV", None)
+        # A nav.py with no NAV (or NAV = None) contributes nothing; a NAV that isn't
+        # a list is a mistake and fails in merge().
         if raw is not None:
             found.append((config.label, raw))
     return found

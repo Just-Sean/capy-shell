@@ -241,6 +241,9 @@ Each entry is a dict:
 | `section` | — | a group heading; omit for a top-level entry |
 | `permission` | — | a permission string; the entry is hidden from users without it |
 
+Items sort by `order` then `label` within a section, and sections sort by their lowest
+`order`, so a low-`order` entry also pulls its whole section toward the top.
+
 capy-shell reads every installed app's `nav.py` (only the `NAV` data — never an app's
 code) and exposes the merged, section-ordered result through one interface:
 
@@ -252,8 +255,9 @@ get_nav(request)  # -> [NavSection(title, items), ...]
 
 That `get_nav(request)` signature is the **contract**: because modules depend only on
 the `nav.py` schema and the shell depends only on `get_nav`, a module never imports the
-shell, and a different shell could render the same declarations. An invalid entry or a
-duplicate `key` fails loudly at startup.
+shell, and a different shell could render the same declarations. An app with no `nav.py`
+(or a `nav.py` with no `NAV`) simply contributes nothing; an invalid entry, a `NAV` that
+isn't a list, or a duplicate `key` fails loudly the first time the nav is collected.
 
 Nav is for **end-user** modules; admin-only tools belong in the Django admin, not here.
 Still to come in later features: **rendering** the nav (responsive — top bar on wide
@@ -286,6 +290,8 @@ later feature; for now you can see the merged result with:
 ```bash
 uv run python demo/manage.py shell -c "from capy_shell.nav import get_nav; print(get_nav(None))"
 ```
+
+(`get_nav` ignores the request until permission filtering lands, so `None` is fine here.)
 
 ## Settings
 

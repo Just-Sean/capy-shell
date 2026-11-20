@@ -14,6 +14,7 @@ from capy_shell.nav import (
     sections,
     validate,
 )
+from capy_shell.nav.collect import _import_nav
 
 # --- schema -------------------------------------------------------------------
 
@@ -62,12 +63,19 @@ def test_validate_rejects_unknown_field():
     "bad",
     [
         {"key": "", "label": "L", "url": "u"},  # empty string
+        {"key": "   ", "label": "L", "url": "u"},  # whitespace only
         {"key": 1, "label": "L", "url": "u"},  # not a string
     ],
 )
-def test_validate_rejects_bad_required_types(bad):
-    with pytest.raises(NavError, match="non-empty string"):
+def test_validate_rejects_blank_or_non_string_required(bad):
+    with pytest.raises(NavError, match="non-blank string"):
         validate(bad)
+
+
+@pytest.mark.parametrize("section", ["", "   "])
+def test_validate_rejects_blank_optional(section):
+    with pytest.raises(NavError, match="non-blank string or None"):
+        validate({"key": "k", "label": "L", "url": "u", "section": section})
 
 
 @pytest.mark.parametrize("order", ["5", 1.5, True])
@@ -94,12 +102,27 @@ def test_merge_combines_sources():
     assert {item.key for item in items} == {"a1", "b1"}
 
 
-def test_merge_rejects_duplicate_keys():
+def test_merge_rejects_duplicate_keys_across_sources():
     with pytest.raises(NavError, match="duplicate nav key 'dup'"):
         merge(
             [
                 ("a", [{"key": "dup", "label": "A", "url": "u"}]),
                 ("b", [{"key": "dup", "label": "B", "url": "u"}]),
+            ]
+        )
+
+
+def test_merge_rejects_duplicate_keys_within_one_source():
+    with pytest.raises(NavError, match="duplicate nav key 'dup'"):
+        merge(
+            [
+                (
+                    "a",
+                    [
+                        {"key": "dup", "label": "A", "url": "u"},
+                        {"key": "dup", "label": "B", "url": "u"},
+                    ],
+                )
             ]
         )
 
@@ -147,3 +170,28 @@ def test_collect_carries_optional_fields():
 def test_get_nav_returns_sections():
     result = get_nav(RequestFactory().get("/"))
     assert result and all(isinstance(section, NavSection) for section in result)
+
+
+def test_get_nav_ignores_the_request():
+    # MVP: the request isn't used yet (filtering is a later feature), so None is fine.
+    assert get_nav(None) == get_nav(RequestFactory().get("/"))
+
+
+# --- _import_nav: skip vs re-raise -------------------------------------------
+
+
+def test_import_nav_finds_an_apps_nav_module():
+    module = _import_nav("tests.navapp_a")
+    assert module is not None and hasattr(module, "NAV")
+
+
+def test_import_nav_returns_none_when_no_nav_module():
+    # An installed app without a nav.py is skipped, not an error.
+    assert _import_nav("django.contrib.auth") is None
+
+
+def test_import_nav_reraises_a_broken_nav_module():
+    # tests/navprobe_broken/nav.py imports a missing module; that real error must
+    # propagate, not be mistaken for "this app has no nav.py".
+    with pytest.raises(ModuleNotFoundError, match="capy_shell_this_module_does_not_exist"):
+        _import_nav("tests.navprobe_broken")
