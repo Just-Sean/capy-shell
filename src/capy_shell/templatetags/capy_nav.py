@@ -1,0 +1,19 @@
+"""The ``{% shell_nav %}`` tag: render the collected nav for the current request.
+
+Used by the shell's ``shell_nav`` block by default; a project can override that block.
+"""
+
+from __future__ import annotations
+
+from django import template
+
+from capy_shell.nav import get_nav
+
+register = template.Library()
+
+
+@register.inclusion_tag("capy_shell/nav.html", takes_context=True)
+def shell_nav(context):
+    """Render the request's nav (permission-filtered, active-marked) as a daisyUI menu."""
+    request = context.get("request")
+    return {"groups": get_nav(request)}

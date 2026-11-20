@@ -5,21 +5,33 @@ Modules **declare** nav as plain data in their own ``nav.py`` (a ``NAV`` list of
 ``get_nav(request)`` is the stable interface the app-shell renders through — so a
 different shell can read the same declarations.
 
-This is the registry only. Permission filtering and active state, a REST endpoint and
-admin-editable DB overrides build on it in later features; ``get_nav``'s signature
-stays the same as they do.
+``get_nav`` returns render-ready groups for the request: filtered by the user's
+permissions, each link's URL resolved and the active item marked. Admin-editable DB
+overrides build on it in a later feature; the signature stays the same.
 """
 
 from __future__ import annotations
 
 from .collect import collect, merge, sections
-from .schema import DEFAULT_ORDER, NavError, NavItem, NavSection, validate
+from .render import build_nav
+from .schema import (
+    DEFAULT_ORDER,
+    NavError,
+    NavGroup,
+    NavItem,
+    NavLink,
+    NavSection,
+    validate,
+)
 
 __all__ = [
     "DEFAULT_ORDER",
     "NavError",
+    "NavGroup",
     "NavItem",
+    "NavLink",
     "NavSection",
+    "build_nav",
     "collect",
     "get_nav",
     "merge",
@@ -29,10 +41,10 @@ __all__ = [
 
 
 def get_nav(request):
-    """The merged nav for this request, as ordered sections.
+    """The nav for this request, as render-ready groups.
 
-    MVP: the full collected nav. Later features will filter it by the request user's
-    permissions and mark the active item, and merge DB overrides; the signature stays
-    the same, so callers (and a replacement shell) don't change.
+    Filtered by the request user's permissions, each link's ``href`` resolved and the
+    active item marked (see ``render.build_nav``). A ``None`` request is treated as an
+    anonymous user, so only entries with no ``permission`` appear.
     """
-    return collect()
+    return build_nav(request)

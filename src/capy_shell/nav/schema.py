@@ -8,6 +8,7 @@ never imports the shell.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 DEFAULT_ORDER = 1000
@@ -16,6 +17,10 @@ REQUIRED = ("key", "label", "url")
 # Optional fields and the type each must be (when present and not None).
 OPTIONAL_STR = ("icon", "section", "permission")
 ALLOWED = set(REQUIRED) | set(OPTIONAL_STR) | {"order"}
+
+# Dangerous URL schemes a link must never use (they execute script when clicked).
+# A namespaced URL name like "app:view" is fine — it has no "javascript:"-style scheme.
+_UNSAFE_URL = re.compile(r"^\s*(javascript|data|vbscript):", re.IGNORECASE)
 
 
 class NavError(ValueError):
@@ -43,6 +48,25 @@ class NavSection:
     items: tuple[NavItem, ...]
 
 
+@dataclass(frozen=True)
+class NavLink:
+    """A render-ready nav item: ``href`` resolved and ``active`` set for a request."""
+
+    key: str
+    label: str
+    href: str
+    icon: str | None
+    active: bool
+
+
+@dataclass(frozen=True)
+class NavGroup:
+    """A render-ready section: its heading and its (permission-filtered) links."""
+
+    title: str | None
+    links: tuple[NavLink, ...]
+
+
 def validate(entry: object, *, source: str = "") -> NavItem:
     """Validate one declared nav dict into a NavItem, or raise NavError."""
     where = f"{source} " if source else ""
@@ -62,6 +86,8 @@ def validate(entry: object, *, source: str = "") -> NavItem:
         value = entry[name]
         if not isinstance(value, str) or not value.strip():
             raise NavError(f"{where}nav entry {name!r} must be a non-blank string.")
+    if _UNSAFE_URL.match(entry["url"]):
+        raise NavError(f"{where}nav entry 'url' uses an unsafe scheme: {entry['url']!r}.")
     for name in OPTIONAL_STR:
         value = entry.get(name)
         if value is not None and (not isinstance(value, str) or not value.strip()):

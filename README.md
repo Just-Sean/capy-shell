@@ -250,7 +250,7 @@ code) and exposes the merged, section-ordered result through one interface:
 ```python
 from capy_shell.nav import get_nav
 
-get_nav(request)  # -> [NavSection(title, items), ...]
+get_nav(request)  # -> [NavGroup(title, links), ...], render-ready for this request
 ```
 
 That `get_nav(request)` signature is the **contract**: because modules depend only on
@@ -260,11 +260,20 @@ shell, and a different shell could render the same declarations. An app with no 
 isn't a list, or a duplicate `key` fails loudly at startup — a system check catches it at
 `manage.py check` and at boot, so a bad declaration fails the deploy, not an end user.
 
+The shell **renders this itself**: the `shell_nav` block runs `{% shell_nav %}` by
+default (override the block to customize), drawing the nav as a daisyUI menu in the
+sidebar — which collapses into the header's burger drawer on small screens. Per request
+it is **filtered by the user's permissions** (an entry with a `permission` the user
+lacks is hidden — an anonymous user sees only unpermissioned entries), each `url` is
+resolved to an `href` (a URL name via `reverse`, else the literal path), and the entry
+matching the current page is marked **active** (`aria-current="page"`). Labels and hrefs
+are auto-escaped, icons go through the safe `{% icon %}` tag, and a `url` with a
+dangerous scheme (`javascript:` etc.) is rejected at the startup check.
+
 Nav is for **end-user** modules; admin-only tools belong in the Django admin, not here.
-Still to come in later features: **rendering** the nav (responsive — top bar on wide
-screens, sidebar on medium, drawer on small — with the active item marked), **enforcing**
-`permission` per request, a **REST endpoint** for the same data, and **admin-editable
-overrides**. `get_nav`'s signature won't change as those land.
+Still to come in later features: a horizontal **top-nav on wide screens**, a **REST
+endpoint** for the same data, and **admin-editable overrides**. `get_nav`'s signature
+won't change as those land.
 
 ## Running the demo
 
@@ -878,6 +887,7 @@ If the repository itself moved, also point git at it:
 | `src/capy_shell/icons/` | Vendored Lucide SVG icons + their loader (see Icons) |
 | `src/capy_shell/nav/` | The nav registration contract: schema, collection, `get_nav` (see Navigation) |
 | `src/capy_shell/templatetags/capy_icons.py` | The `{% icon %}` tag |
+| `src/capy_shell/templatetags/capy_nav.py` | The `{% shell_nav %}` tag (renders the nav) |
 | `scripts/fetch_icons.py` | Vendors/updates the Lucide icons (see Icons) |
 | `src/capy_shell/migrations/` | Database migrations (see Database) |
 | `tests/settings.py` | A tiny stand-in project for the tests |

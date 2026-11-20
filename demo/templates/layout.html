@@ -12,35 +12,12 @@
   </a>
 {% endblock %}
 
-{% comment %} The shell already renders the mode toggle; just add the Admin link. {% endcomment %}
-{% block shell_header_actions %}
-  <a href="{% url 'admin:index' %}" class="btn btn-ghost btn-sm">Admin</a>
-{% endblock %}
-
 {% comment %}
-  Placeholder content for the shell's regions, so they're visible while building.
-  Real nav (auto-collected from installed modules, admin-editable) is a later
-  feature; here it's just sample links. The shell wraps shell_nav in the labeled
-  <nav> landmark and the responsive drawer, so fill it with the menu only. The
-  aside shows only if CAPY_SHELL_ASIDE is turned on; the footer shows only if
-  CAPY_SHELL_FOOTER is on (it is, in the demo settings).
+  The shell's shell_nav block renders the real nav itself ({% shell_nav %}), collected
+  from installed apps' nav.py (here demo_pages/nav.py). The Admin entry carries a
+  permission, so it shows for a superuser and is hidden when logged out. The aside shows
+  only if CAPY_SHELL_ASIDE is on; the footer only if CAPY_SHELL_FOOTER is on (it is).
 {% endcomment %}
-{% block shell_nav %}
-  <ul class="menu w-full gap-1 p-4">
-    <li><a href="/" class="active">Home</a></li>
-    <li><a href="{% url 'admin:index' %}">Admin</a></li>
-    <li>
-      <details open>
-        <summary>Examples</summary>
-        <ul>
-          <li><a href="/">A nested link</a></li>
-          <li><a href="/">Another one</a></li>
-        </ul>
-      </details>
-    </li>
-  </ul>
-{% endblock %}
-
 {% block shell_aside %}
   <div class="p-4 text-sm text-base-content/70">
     <p class="font-semibold text-base-content">Aside</p>

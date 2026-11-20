@@ -17,7 +17,7 @@
   mode toggle) and "capy_shell.context_processors.shell" in its template context
   processors.
 {% endcomment %}
-{% load capy_theme capy_icons static %}
+{% load capy_theme capy_icons capy_nav static %}
 
 {% comment %}
   Tailwind only generates class names it can see in the source it scans, and it
@@ -85,7 +85,7 @@
     <nav id="capy-shell-nav" aria-label="Primary navigation"
          class="shrink-0 border-r border-base-300 bg-base-100 md:block {{ shell.sidebar_width }}
                 {% if shell.sidebar_sticky %}md:sticky md:self-start md:overflow-y-auto {% if shell.header_sticky %}md:top-16 md:max-h-[calc(100dvh_-_4rem)]{% else %}md:top-0 md:max-h-screen{% endif %}{% endif %}">
-      {% block shell_nav %}{% endblock %}
+      {% block shell_nav %}{% shell_nav %}{% endblock %}
     </nav>
   {% endif %}
 

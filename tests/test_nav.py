@@ -1,13 +1,13 @@
 """The nav registration contract: schema validation, merge/sections, and collection."""
 
 import pytest
-from django.test import RequestFactory
 
 from capy_shell import nav
 from capy_shell.nav import (
     NavError,
+    NavGroup,
     NavItem,
-    NavSection,
+    NavLink,
     checks,
     collect,
     get_nav,
@@ -16,6 +16,22 @@ from capy_shell.nav import (
     validate,
 )
 from capy_shell.nav.collect import _import_nav
+from capy_shell.nav.render import _is_active, _resolve_href, build_nav
+
+
+class _FakeUser:
+    def __init__(self, *perms):
+        self._perms = set(perms)
+
+    def has_perm(self, perm):
+        return perm in self._perms
+
+
+class _FakeRequest:
+    def __init__(self, path="/", *perms):
+        self.path = path
+        self.user = _FakeUser(*perms)
+
 
 # --- schema -------------------------------------------------------------------
 
@@ -88,6 +104,12 @@ def test_validate_rejects_non_int_order(order):
 def test_validate_rejects_a_non_dict():
     with pytest.raises(NavError, match="must be a dict"):
         validate(["not", "a", "dict"])
+
+
+@pytest.mark.parametrize("url", ["javascript:alert(1)", " DATA:text/html", "vbscript:x"])
+def test_validate_rejects_unsafe_url_schemes(url):
+    with pytest.raises(NavError, match="unsafe scheme"):
+        validate({"key": "k", "label": "L", "url": url})
 
 
 # --- merge + sections ---------------------------------------------------------
@@ -168,14 +190,59 @@ def test_collect_carries_optional_fields():
     assert items["b:settings"].permission == "b.view_settings"
 
 
-def test_get_nav_returns_sections():
-    result = get_nav(RequestFactory().get("/"))
-    assert result and all(isinstance(section, NavSection) for section in result)
+# --- rendering: permissions, href, active ------------------------------------
 
 
-def test_get_nav_ignores_the_request():
-    # MVP: the request isn't used yet (filtering is a later feature), so None is fine.
-    assert get_nav(None) == get_nav(RequestFactory().get("/"))
+def test_get_nav_returns_render_ready_groups():
+    groups = get_nav(_FakeRequest())
+    assert groups and all(isinstance(group, NavGroup) for group in groups)
+    assert all(isinstance(link, NavLink) for group in groups for link in group.links)
+
+
+def test_permission_filtering_hides_entries_without_the_perm():
+    keys = {link.key for group in get_nav(_FakeRequest()) for link in group.links}
+    assert "b:settings" not in keys  # requires "b.view_settings"
+    assert "a:home" in keys  # no permission -> always shown
+
+
+def test_permission_filtering_shows_entries_with_the_perm():
+    request = _FakeRequest("/", "b.view_settings")
+    keys = {link.key for group in get_nav(request) for link in group.links}
+    assert "b:settings" in keys
+
+
+def test_none_request_is_treated_as_anonymous():
+    keys = {link.key for group in get_nav(None) for link in group.links}
+    assert "b:settings" not in keys
+
+
+def test_active_item_is_marked_by_path():
+    # b:top's url "top" isn't a reversible name, so its href is the literal "top".
+    groups = build_nav(_FakeRequest("top"))
+    active = {link.key for group in groups for link in group.links if link.active}
+    assert active == {"b:top"}
+
+
+def test_resolve_href_reverses_a_url_name():
+    assert _resolve_href("admin:index") == "/admin/"
+
+
+def test_resolve_href_passes_through_a_literal_path():
+    assert _resolve_href("/somewhere/") == "/somewhere/"
+
+
+@pytest.mark.parametrize(
+    "path,href,active",
+    [
+        ("/", "/", True),
+        ("/x/", "/", False),
+        ("/x/", "/x/", True),
+        ("/x/y/", "/x/", True),  # a child path marks the section parent active
+        ("/other/", "/x/", False),
+    ],
+)
+def test_is_active(path, href, active):
+    assert _is_active(path, href) is active
 
 
 # --- _import_nav: skip vs re-raise -------------------------------------------
