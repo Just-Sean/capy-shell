@@ -106,7 +106,18 @@ def test_validate_rejects_a_non_dict():
         validate(["not", "a", "dict"])
 
 
-@pytest.mark.parametrize("url", ["javascript:alert(1)", " DATA:text/html", "vbscript:x"])
+@pytest.mark.parametrize(
+    "url",
+    [
+        "javascript:alert(1)",
+        " DATA:text/html",
+        "vbscript:x",
+        "JavaScript:alert(1)",  # mixed case
+        "java\tscript:alert(1)",  # TAB inside the scheme (browsers strip it)
+        "java\nscript:alert(1)",  # newline inside the scheme
+        "\x00javascript:alert(1)",  # leading NUL (browsers strip it)
+    ],
+)
 def test_validate_rejects_unsafe_url_schemes(url):
     with pytest.raises(NavError, match="unsafe scheme"):
         validate({"key": "k", "label": "L", "url": url})

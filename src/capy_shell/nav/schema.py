@@ -19,8 +19,15 @@ OPTIONAL_STR = ("icon", "section", "permission")
 ALLOWED = set(REQUIRED) | set(OPTIONAL_STR) | {"order"}
 
 # Dangerous URL schemes a link must never use (they execute script when clicked).
-# A namespaced URL name like "app:view" is fine — it has no "javascript:"-style scheme.
-_UNSAFE_URL = re.compile(r"^\s*(javascript|data|vbscript):", re.IGNORECASE)
+# Browsers ignore ASCII whitespace and C0 control chars when parsing a scheme, so strip
+# those before matching, or "java\tscript:" / "\x00javascript:" would slip through. A
+# namespaced URL name like "app:view" is fine — it has no "javascript:"-style scheme.
+_UNSAFE_SCHEME = re.compile(r"^(javascript|data|vbscript):", re.IGNORECASE)
+_SCHEME_IGNORED = re.compile(r"[\x00-\x20]")
+
+
+def _has_unsafe_scheme(url: str) -> bool:
+    return bool(_UNSAFE_SCHEME.match(_SCHEME_IGNORED.sub("", url)))
 
 
 class NavError(ValueError):
@@ -86,7 +93,7 @@ def validate(entry: object, *, source: str = "") -> NavItem:
         value = entry[name]
         if not isinstance(value, str) or not value.strip():
             raise NavError(f"{where}nav entry {name!r} must be a non-blank string.")
-    if _UNSAFE_URL.match(entry["url"]):
+    if _has_unsafe_scheme(entry["url"]):
         raise NavError(f"{where}nav entry 'url' uses an unsafe scheme: {entry['url']!r}.")
     for name in OPTIONAL_STR:
         value = entry.get(name)
