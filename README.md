@@ -209,6 +209,62 @@ uv run python scripts/fetch_icons.py   # downloads + normalizes the icons into s
 
 Lucide is ISC-licensed; its license ships as `src/capy_shell/icons/LICENSE`.
 
+## Navigation
+
+The app-shell's nav is **collected from the installed modules**, so a module adds its
+own entries without the shell knowing anything about it. A module declares nav in its
+own `nav.py` — **plain data, importing nothing from capy-shell**:
+
+```python
+# yourapp/nav.py
+NAV = [
+    {
+        "key": "yourapp:home",
+        "label": "Home",
+        "url": "yourapp:home",
+        "icon": "house",
+        "order": 10,
+        "section": "You",
+    },
+]
+```
+
+Each entry is a dict:
+
+| field | required | meaning |
+|---|---|---|
+| `key` | ✓ | a globally-unique, stable id (used later to override or mark the entry) |
+| `label` | ✓ | the visible text |
+| `url` | ✓ | a URL name (reversed when rendered) or a path |
+| `icon` | — | a capy-shell [icon](#icons) name |
+| `order` | — | sort weight within its section (default 1000) |
+| `section` | — | a group heading; omit for a top-level entry |
+| `permission` | — | a permission string; the entry is hidden from users without it |
+
+Items sort by `order` then `label` within a section, and sections sort by their lowest
+`order`, so a low-`order` entry also pulls its whole section toward the top.
+
+capy-shell reads every installed app's `nav.py` (only the `NAV` data — never an app's
+code) and exposes the merged, section-ordered result through one interface:
+
+```python
+from capy_shell.nav import get_nav
+
+get_nav(request)  # -> [NavSection(title, items), ...]
+```
+
+That `get_nav(request)` signature is the **contract**: because modules depend only on
+the `nav.py` schema and the shell depends only on `get_nav`, a module never imports the
+shell, and a different shell could render the same declarations. An app with no `nav.py`
+(or a `nav.py` with no `NAV`) simply contributes nothing; an invalid entry, a `NAV` that
+isn't a list, or a duplicate `key` fails loudly the first time the nav is collected.
+
+Nav is for **end-user** modules; admin-only tools belong in the Django admin, not here.
+Still to come in later features: **rendering** the nav (responsive — top bar on wide
+screens, sidebar on medium, drawer on small — with the active item marked), **enforcing**
+`permission` per request, a **REST endpoint** for the same data, and **admin-editable
+overrides**. `get_nav`'s signature won't change as those land.
+
 ## Running the demo
 
 A dev-only demo site (`demo/`) shows the shell. It installs capy-theme as a sibling
@@ -226,6 +282,16 @@ uv run python demo/manage.py tailwind runserver   # http://localhost:8000/
 publishes and activates a simple light/dark theme so the header's mode toggle shows.
 It does nothing if a theme is already active, so it's safe to re-run. To design a
 real theme, log in to `/admin/` and use capy-theme's admin instead.
+
+`demo/demo_pages/` is a dev-only stand-in end-user app that declares nav
+(`demo_pages/nav.py`), so there's something to collect. The shell renders nav in a
+later feature; for now you can see the merged result with:
+
+```bash
+uv run python demo/manage.py shell -c "from capy_shell.nav import get_nav; print(get_nav(None))"
+```
+
+(`get_nav` ignores the request until permission filtering lands, so `None` is fine here.)
 
 ## Settings
 
@@ -809,6 +875,7 @@ If the repository itself moved, also point git at it:
 | `src/capy_shell/apps.py` | The app's name, label and admin title |
 | `src/capy_shell/models.py` | Database models (empty to start) |
 | `src/capy_shell/icons/` | Vendored Lucide SVG icons + their loader (see Icons) |
+| `src/capy_shell/nav/` | The nav registration contract: schema, collection, `get_nav` (see Navigation) |
 | `src/capy_shell/templatetags/capy_icons.py` | The `{% icon %}` tag |
 | `scripts/fetch_icons.py` | Vendors/updates the Lucide icons (see Icons) |
 | `src/capy_shell/migrations/` | Database migrations (see Database) |
