@@ -8,6 +8,7 @@ from capy_shell.nav import (
     NavError,
     NavItem,
     NavSection,
+    checks,
     collect,
     get_nav,
     merge,
@@ -195,3 +196,19 @@ def test_import_nav_reraises_a_broken_nav_module():
     # propagate, not be mistaken for "this app has no nav.py".
     with pytest.raises(ModuleNotFoundError, match="capy_shell_this_module_does_not_exist"):
         _import_nav("tests.navprobe_broken")
+
+
+# --- the startup system check ------------------------------------------------
+
+
+def test_check_nav_passes_for_valid_nav():
+    assert checks.check_nav(None) == []
+
+
+def test_check_nav_reports_invalid_nav(monkeypatch):
+    def boom():
+        raise NavError("duplicate nav key 'x'")
+
+    monkeypatch.setattr(checks, "collect", boom)
+    errors = checks.check_nav(None)
+    assert len(errors) == 1 and errors[0].id == checks.NAV_ERROR_ID

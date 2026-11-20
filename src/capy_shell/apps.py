@@ -8,3 +8,10 @@ class CapyShellConfig(AppConfig):
     # Set here, not left to the project, so the module's migrations are the
     # same in every project whatever its DEFAULT_AUTO_FIELD.
     default_auto_field = "django.db.models.BigAutoField"
+
+    def ready(self):
+        # Register the system check that validates module nav at `manage.py check`
+        # and at boot, so a bad nav.py fails the deploy, not an end user's page.
+        from capy_shell.nav.checks import register as register_nav_checks
+
+        register_nav_checks()

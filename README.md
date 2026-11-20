@@ -257,7 +257,8 @@ That `get_nav(request)` signature is the **contract**: because modules depend on
 the `nav.py` schema and the shell depends only on `get_nav`, a module never imports the
 shell, and a different shell could render the same declarations. An app with no `nav.py`
 (or a `nav.py` with no `NAV`) simply contributes nothing; an invalid entry, a `NAV` that
-isn't a list, or a duplicate `key` fails loudly the first time the nav is collected.
+isn't a list, or a duplicate `key` fails loudly at startup — a system check catches it at
+`manage.py check` and at boot, so a bad declaration fails the deploy, not an end user.
 
 Nav is for **end-user** modules; admin-only tools belong in the Django admin, not here.
 Still to come in later features: **rendering** the nav (responsive — top bar on wide
