@@ -1,0 +1,22 @@
+{% comment %}
+  The collected nav, rendered as a daisyUI menu. It sits inside the shell's labeled
+  <nav> landmark (see base.html), so it adds no <nav> of its own. Links, labels and
+  hrefs are auto-escaped; icons go through the safe {% icon %} tag. The active item
+  gets daisyUI's menu-active and aria-current="page".
+{% endcomment %}
+{% load capy_icons %}
+<ul class="menu w-full gap-1 p-2">
+  {% for group in groups %}
+    {% if group.title %}<li class="menu-title">{{ group.title }}</li>{% endif %}
+    {% for link in group.links %}
+      <li>
+        <a href="{{ link.href }}"
+           class="flex items-center gap-2{% if link.active %} menu-active{% endif %}"
+           {% if link.active %}aria-current="page"{% endif %}>
+          {% if link.icon %}{% icon link.icon class="size-4 shrink-0" %}{% endif %}
+          {{ link.label }}
+        </a>
+      </li>
+    {% endfor %}
+  {% endfor %}
+</ul>
