@@ -19,6 +19,7 @@ urlpatterns = [
     ),
     path("admin/", admin.site.urls),
     path("theme/", include("capy_theme.urls")),
+    path("shell/", include("capy_shell.urls")),  # the theme picker's set-theme view
     # Serves uploaded files (like theme logos) from demo/media/ while DEBUG is on.
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]

@@ -1,5 +1,6 @@
 {% load capy_theme %}{% comment %}
-  The brand/logo, rendered by capy-shell from capy-theme's exposed data (v2 — capy-theme
-  no longer renders a logo tag; the consumer builds it). The dark logo follows the device
-  in auto mode; falls back to the site name, then to nothing.
-{% endcomment %}{% theme_artifacts as theme %}{% if theme %}{% with logo=theme.logos.logo_main %}{% if logo.light %}<picture>{% if logo.dark %}<source srcset="{{ logo.dark.url }}" media="(prefers-color-scheme: dark)">{% endif %}<img src="{{ logo.light.url }}" width="{{ logo.light.width }}" height="{{ logo.light.height }}" alt="{{ logo.light.alt }}" class="h-8 w-auto"></picture>{% elif theme.branding.site_name %}{{ theme.branding.site_name }}{% endif %}{% endwith %}{% endif %}
+  The brand/logo, rendered by capy-shell from the chosen theme's exposed data (v2 —
+  capy-theme no longer renders a logo tag; the consumer builds it). Uses the picked theme
+  (shell.theme_slug), falling back to the default. The dark logo follows the device in auto
+  mode; falls back to the site name, then to nothing.
+{% endcomment %}{% theme_assets shell.theme_slug as theme %}{% if not theme %}{% theme_assets "default" as theme %}{% endif %}{% if theme %}{% with logo=theme.logos.logo_main %}{% if logo.light %}<picture>{% if logo.dark %}<source srcset="{{ logo.dark.url }}" media="(prefers-color-scheme: dark)">{% endif %}<img src="{{ logo.light.url }}" width="{{ logo.light.width }}" height="{{ logo.light.height }}" alt="{{ logo.light.alt }}" class="h-8 w-auto"></picture>{% elif theme.branding.site_name %}{{ theme.branding.site_name }}{% endif %}{% endwith %}{% endif %}

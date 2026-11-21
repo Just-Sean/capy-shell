@@ -1,8 +1,9 @@
-"""URLs for the test project. Add the module's URLs here once it has some."""
+"""URLs for the test project."""
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("shell/", include("capy_shell.urls")),
 ]

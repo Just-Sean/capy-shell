@@ -79,6 +79,7 @@
     {% endif %}
   </div>
   <nav class="flex flex-none items-center gap-2" aria-label="User and settings">
+    {% include "capy_shell/_theme_picker.html" %}
     {% include "capy_shell/_mode_toggle.html" %}
     {% block shell_header_actions %}{% endblock %}
   </nav>

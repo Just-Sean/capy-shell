@@ -189,3 +189,30 @@ def test_mode_toggle_has_its_show_hide_css_and_script():
     assert (root / "mode.js").exists()
     css = (root / "shell.css").read_text()
     assert "data-capy-shell-mode" in css and ".capy-mode-icon" in css
+
+
+def test_header_has_the_theme_picker():
+    html = _render_shell()
+    assert ">Theme</summary>" in html  # the dropdown
+    assert ">\n          Ocean\n" in html or "Ocean" in html
+    assert "Forest" in html
+    assert "/shell/set-theme/ocean/" in html  # each option links to the set-theme view
+    # With no cookie, the default theme (Ocean) is marked current.
+    assert 'aria-current="true"' in html
+
+
+def test_set_theme_remembers_the_choice_and_returns(client):
+    response = client.get("/shell/set-theme/forest/?next=/x/")
+    assert response.status_code == 302 and response["Location"] == "/x/"
+    assert client.cookies["capy_shell_theme"].value == "forest"
+
+
+def test_set_theme_only_returns_to_this_site(client):
+    assert client.get("/shell/set-theme/forest/?next=https://evil.example/")["Location"] == "/"
+
+
+def test_the_stylesheet_partial_links_the_chosen_theme():
+    html = render_to_string(
+        "capy_shell/_theme_stylesheet.html", {"shell": {"theme_slug": "forest"}}
+    )
+    assert '<link rel="stylesheet" href="/theme/stub.css">' in html
