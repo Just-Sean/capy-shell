@@ -1,0 +1,21 @@
+{% load capy_theme %}{% comment %}
+  capy-shell's own theme picker: lists the themes capy-theme offers ({% theme_catalog %})
+  and links each to the shell's set-theme view, which remembers the choice (a cookie) and
+  comes back. Native <details> disclosure — keyboard-accessible, works without JavaScript.
+  Shown only when there's more than one theme to choose. capy-theme stores nothing; the
+  shell owns the choice.
+{% endcomment %}{% theme_catalog as themes %}{% if themes|length > 1 %}
+<details class="dropdown dropdown-end">
+  <summary class="btn btn-ghost btn-sm">Theme</summary>
+  <ul class="menu dropdown-content z-10 mt-2 max-h-[60vh] w-48 flex-nowrap overflow-y-auto rounded-box bg-base-100 shadow">
+    {% for t in themes %}
+      <li>
+        <a href="{% url 'capy_shell:set_theme' t.slug %}?next={{ request.get_full_path|urlencode }}"
+           {% if t.slug == shell.theme_slug or shell.theme_slug == "default" and t.default %}class="menu-active" aria-current="true"{% endif %}>
+          {{ t.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</details>
+{% endif %}

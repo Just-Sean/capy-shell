@@ -1,0 +1,6 @@
+{% load capy_theme %}{% comment %}
+  Links the chosen theme's stylesheet in the project's <head> — the host page includes
+  this in <head>. capy-theme v2 exposes the theme; the consumer links it. shell.theme_slug
+  is the visitor's pick (the capy_shell_theme cookie), or "default". An unknown/unpublished
+  pick falls back to the default theme.
+{% endcomment %}{% theme_assets shell.theme_slug as theme %}{% if not theme %}{% theme_assets "default" as theme %}{% endif %}{% if theme %}<link rel="stylesheet" href="{{ theme.stylesheet_url }}">{% endif %}

@@ -97,14 +97,16 @@ In a project made from capy-project, with its database running
 ### Wiring the app shell
 
 capy-shell needs **capy-theme (v2)** installed. The shell renders the header's
-brand/logo and its own **light/dark/auto toggle** itself, from capy-theme's exposed
-data (`{% theme_artifacts %}`) — you don't add any capy-theme tags to the header. Plus
-three bits of wiring:
+brand/logo, its own **light/dark/auto toggle**, and a **theme picker** itself, from
+capy-theme's exposed data — you don't add any capy-theme tags to the header. Plus the
+wiring below.
 
 1. Add `"capy_shell.context_processors.shell"` to the template
    `OPTIONS["context_processors"]`.
-2. Point the project's `layout.html` at the shell (this is the one-line injection step 5
-   refers to); the brand and mode toggle come for free:
+2. Include the shell's URLs (the theme picker's "set theme" view lives here):
+   `path("shell/", include("capy_shell.urls"))`.
+3. Point the project's `layout.html` at the shell (this is the one-line injection step 5
+   refers to); the brand, mode toggle and theme picker come for free:
 
    ```html
    {% extends "capy_shell/base.html" %}
@@ -112,15 +114,15 @@ three bits of wiring:
       your own header buttons; otherwise the shell renders both itself. #}
    ```
 
-   The project's `base.html` must **link capy-theme's stylesheet** (the shell's toggle
-   sets `data-theme` on it) and expose a `{% block head %}` inside `<head>` and a
-   `{% block body %}` inside `<body>`:
+   The project's `base.html` must **link the chosen theme's stylesheet** (include the
+   shell's partial, which reads the picker's choice and applies capy-theme's data) and
+   expose a `{% block head %}` inside `<head>` and a `{% block body %}` inside `<body>`:
 
    ```html
-   {% load capy_theme %}{% theme_artifacts as theme %}
+   {% load static %}
    <html lang="en"><head>
      …
-     {% if theme %}<link rel="stylesheet" href="{{ theme.stylesheet_url }}">{% endif %}
+     {% include "capy_shell/_theme_stylesheet.html" %}
      {% block head %}{% endblock %}
    </head><body>{% block body %}{% endblock %}</body></html>
    ```
