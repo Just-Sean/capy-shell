@@ -1,0 +1,11 @@
+{% load capy_theme capy_shell_theme %}{% comment %}
+  Links the chosen themes' stylesheets in the host page's <head> (the host includes this
+  in <head>). capy-theme v2 exposes the themes; capy-shell loads the light slot and the
+  dark slot so its own light/dark toggle (mode.js, which sets data-theme on <html>) can
+  switch between them with no reload. Each slot is the visitor's pick for that scheme
+  (shell.light_pick / shell.dark_pick) or the admin's default for it. If neither is set,
+  the primary theme is linked; if nothing is published, the host's own daisyUI default
+  applies. capy-theme stores nothing; the shell owns the choice.
+{% endcomment %}{% theme_catalog as themes %}{% theme_slots themes shell.light_pick shell.dark_pick as slots %}{% if slots.light %}<link rel="stylesheet" href="{{ slots.light.stylesheet_url }}">
+{% endif %}{% if slots.dark %}<link rel="stylesheet" href="{{ slots.dark.stylesheet_url }}">
+{% endif %}{% if not slots.light and not slots.dark %}{% theme_artifacts as theme %}{% if theme %}<link rel="stylesheet" href="{{ theme.stylesheet_url }}">{% endif %}{% endif %}

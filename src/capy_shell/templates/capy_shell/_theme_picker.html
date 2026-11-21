@@ -1,0 +1,39 @@
+{% load capy_theme capy_shell_theme %}{% comment %}
+  capy-shell's own theme picker: it asks capy-theme for the catalog ({% theme_catalog %}),
+  lists the themes grouped into Light and Dark, and links each to the shell's set-theme
+  view, which remembers the choice for that scheme (a cookie) and comes back. The toggle
+  (mode.js) then switches between the chosen light theme and the chosen dark theme. Native
+  <details> disclosure — keyboard-accessible, works without JavaScript. Shown only when
+  there's more than one theme. capy-theme stores nothing; the shell owns the choice.
+{% endcomment %}{% theme_catalog as themes %}{% if themes|length > 1 %}
+{% theme_slots themes shell.light_pick shell.dark_pick as slots %}
+{% scheme_themes themes "light" as light_themes %}
+{% scheme_themes themes "dark" as dark_themes %}
+<details class="dropdown dropdown-end">
+  <summary class="btn btn-ghost btn-sm">Theme</summary>
+  <ul class="menu dropdown-content z-10 mt-2 max-h-[60vh] w-56 flex-nowrap overflow-y-auto rounded-box bg-base-100 shadow">
+    {% if light_themes %}
+      <li class="menu-title">Light</li>
+      {% for t in light_themes %}
+        <li>
+          <a href="{% url 'capy_shell:set_theme' t.scheme t.slug %}?next={{ request.get_full_path|urlencode }}"
+             {% if slots.light.slug == t.slug %}class="menu-active" aria-current="true"{% endif %}>
+            {{ t.name }}
+          </a>
+        </li>
+      {% endfor %}
+    {% endif %}
+    {% if dark_themes %}
+      <li class="menu-title">Dark</li>
+      {% for t in dark_themes %}
+        <li>
+          <a href="{% url 'capy_shell:set_theme' t.scheme t.slug %}?next={{ request.get_full_path|urlencode }}"
+             {% if slots.dark.slug == t.slug %}class="menu-active" aria-current="true"{% endif %}>
+            {{ t.name }}
+          </a>
+        </li>
+      {% endfor %}
+    {% endif %}
+  </ul>
+</details>
+{% endif %}

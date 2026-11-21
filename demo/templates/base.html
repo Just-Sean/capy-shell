@@ -1,14 +1,14 @@
-{% load tailwind_cli capy_theme %}<!doctype html>
-{% comment %}capy-theme v2 exposes the theme as data/files; the project (this host) links
-   the stylesheet itself. data-theme on <html> is set by the shell's mode.js.{% endcomment %}
-{% theme_artifacts as theme %}
+{% load tailwind_cli %}<!doctype html>
+{% comment %}capy-theme v2 exposes the themes as data/files; the project (this host) links
+   them itself. capy-shell's _theme_stylesheet links the chosen light-slot and dark-slot
+   theme stylesheets; its mode.js sets data-theme on <html> to switch between them.{% endcomment %}
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Capy Shell demo{% endblock %}</title>
   {% tailwind_css %}
-  {% if theme %}<link rel="stylesheet" href="{{ theme.stylesheet_url }}">{% endif %}
+  {% include "capy_shell/_theme_stylesheet.html" %}
   {% block head %}{% endblock %}
 </head>
 <body class="min-h-dvh bg-base-100 text-base-content">
