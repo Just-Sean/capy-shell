@@ -148,7 +148,7 @@ dev = [
 [[package]]
 name = "capy-theme"
 version = "2.0.0"
-source = { git = "https://github.com/Just-Sean/capy-theme?branch=main#0202acfcde43b04818b8f1383da82f9df9ab0935" }
+source = { git = "https://github.com/Just-Sean/capy-theme?branch=main#b000f2c80f221fe596ccfe552acd52126ab48ca6" }
 dependencies = [
     { name = "brotli", marker = "platform_python_implementation == 'CPython'" },
     { name = "brotlicffi", marker = "platform_python_implementation != 'CPython'" },
