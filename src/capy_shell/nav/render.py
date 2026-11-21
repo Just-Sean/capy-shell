@@ -30,26 +30,35 @@ def _is_active(path: str, href: str) -> bool:
     return path == href or path.startswith(href.rstrip("/") + "/")
 
 
+def _build_link(item, user, path) -> NavLink | None:
+    """A render-ready link for one item, or None if the user can't see it.
+
+    Recurses one level into children; a group with no own url and no visible children is
+    dropped, and a parent is "active" if it or any visible child is active (active trail).
+    """
+    if item.permission and not (user is not None and user.has_perm(item.permission)):
+        return None
+    children = tuple(
+        link for child in item.children if (link := _build_link(child, user, path)) is not None
+    )
+    if item.children and not children and not item.url:
+        return None  # an empty group leads nowhere.
+    href = _resolve_href(item.url) if item.url else ""
+    active = (_is_active(path, href) if href else False) or any(c.active for c in children)
+    return NavLink(
+        key=item.key, label=item.label, href=href, icon=item.icon, active=active, children=children
+    )
+
+
 def build_nav(request) -> list[NavGroup]:
     """The permission-filtered, href-resolved, active-marked nav for this request."""
     user = getattr(request, "user", None)
     path = getattr(request, "path", "")
     groups = []
     for section in collect():
-        links = []
-        for item in section.items:
-            if item.permission and not (user is not None and user.has_perm(item.permission)):
-                continue
-            href = _resolve_href(item.url)
-            links.append(
-                NavLink(
-                    key=item.key,
-                    label=item.label,
-                    href=href,
-                    icon=item.icon,
-                    active=_is_active(path, href),
-                )
-            )
+        links = tuple(
+            link for item in section.items if (link := _build_link(item, user, path)) is not None
+        )
         if links:
-            groups.append(NavGroup(title=section.title, links=tuple(links)))
+            groups.append(NavGroup(title=section.title, links=links))
     return groups

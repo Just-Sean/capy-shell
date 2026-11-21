@@ -240,6 +240,7 @@ Each entry is a dict:
 | `order` | — | sort weight within its section (default 1000) |
 | `section` | — | a group heading; omit for a top-level entry |
 | `permission` | — | a permission string; the entry is hidden from users without it |
+| `children` | — | sub-items (same shape, **one level deep**) — makes this a group: a dropdown on the wide top-nav, a collapsible accordion in the sidebar/drawer. A group's own `url` is optional, and it's hidden if it has no visible children. |
 
 Items sort by `order` then `label` within a section, and sections sort by their lowest
 `order`, so a low-`order` entry also pulls its whole section toward the top.
