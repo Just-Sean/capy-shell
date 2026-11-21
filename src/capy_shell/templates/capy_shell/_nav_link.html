@@ -1,0 +1,7 @@
+{% load capy_icons %}
+<a href="{{ link.href }}"
+   class="flex items-center gap-2{% if link.active %} menu-active{% endif %}"
+   {% if link.active %}aria-current="page"{% endif %}>
+  {% if link.icon %}{% icon link.icon class="size-4 shrink-0" %}{% endif %}
+  {{ link.label }}
+</a>

@@ -16,7 +16,7 @@ from capy_shell.nav import (
     validate,
 )
 from capy_shell.nav.collect import _import_nav
-from capy_shell.nav.render import _is_active, _resolve_href, build_nav
+from capy_shell.nav.render import _build_link, _is_active, _resolve_href, build_nav
 
 
 class _FakeUser:
@@ -240,6 +240,71 @@ def test_resolve_href_reverses_a_url_name():
 
 def test_resolve_href_passes_through_a_literal_path():
     assert _resolve_href("/somewhere/") == "/somewhere/"
+
+
+# --- nested items (one level) ------------------------------------------------
+
+
+def test_validate_accepts_a_group_with_children():
+    item = validate(
+        {"key": "g", "label": "G", "children": [{"key": "c", "label": "C", "url": "/x/"}]}
+    )
+    assert item.url == ""  # a group needs no url of its own
+    assert len(item.children) == 1 and item.children[0].key == "c"
+
+
+def test_validate_leaf_still_requires_url():
+    with pytest.raises(NavError, match="missing required field 'url'"):
+        validate({"key": "k", "label": "L"})
+
+
+def test_validate_rejects_two_levels_of_nesting():
+    with pytest.raises(NavError, match="sub-items can't have their own children"):
+        validate(
+            {
+                "key": "g",
+                "label": "G",
+                "children": [
+                    {
+                        "key": "c",
+                        "label": "C",
+                        "url": "/x/",
+                        "children": [{"key": "gc", "label": "GC", "url": "/y/"}],
+                    }
+                ],
+            }
+        )
+
+
+def test_validate_rejects_non_list_children():
+    with pytest.raises(NavError, match="'children' must be a list"):
+        validate({"key": "g", "label": "G", "children": "nope"})
+
+
+def test_build_link_filters_children_and_marks_the_trail_active():
+    item = NavItem(
+        key="g",
+        label="G",
+        url="",
+        children=(
+            NavItem(key="c1", label="C1", url="/a/"),
+            NavItem(key="c2", label="C2", url="/b/", permission="x.perm"),
+        ),
+    )
+    link = _build_link(item, _FakeUser(), "/a/")  # no permissions, on /a/
+    assert link is not None
+    assert [c.key for c in link.children] == ["c1"]  # c2 needs x.perm -> hidden
+    assert link.href == "" and link.active  # group, active because child c1 is
+
+
+def test_build_link_drops_a_group_with_no_visible_children():
+    item = NavItem(
+        key="g",
+        label="G",
+        url="",
+        children=(NavItem(key="c", label="C", url="/x/", permission="need"),),
+    )
+    assert _build_link(item, _FakeUser(), "/") is None
 
 
 @pytest.mark.parametrize(
