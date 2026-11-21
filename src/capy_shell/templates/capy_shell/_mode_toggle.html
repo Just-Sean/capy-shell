@@ -8,8 +8,10 @@
 <button type="button" id="capy-shell-mode" data-capy-shell-mode-cycle
         title="Light, dark or auto theme"
         class="btn btn-ghost btn-square"
-        aria-label="Theme: auto. Activate to change.">
+        aria-label="Theme: auto. Switch to light.">
   <span aria-hidden="true">
+    {% comment %}The icon shows the mode a click switches TO (shell.css picks it by the
+       current mode); mode.js keeps the aria-label naming the current mode.{% endcomment %}
     {% icon "sun" class="size-5 capy-mode-icon capy-mode-light" %}
     {% icon "moon" class="size-5 capy-mode-icon capy-mode-dark" %}
     {% icon "sun-moon" class="size-5 capy-mode-icon capy-mode-auto" %}

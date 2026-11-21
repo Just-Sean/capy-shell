@@ -69,14 +69,16 @@
   }
 }
 
-/* Light/dark/auto toggle (mode.js sets data-capy-shell-mode on <html>): show only the
-   icon for the current mode. Before JS runs, or without it, show the "auto" icon. */
+/* Light/dark/auto toggle (mode.js sets data-capy-shell-mode on <html>): show the icon of
+   the mode a click switches TO — sun -> go light, moon -> go dark, sun-moon -> go auto.
+   The cycle is light -> dark -> auto, so each state shows the NEXT mode's icon. Before JS
+   runs, or without it, the mode is auto, so show the sun (a click would go light). */
 .capy-mode-icon {
   display: none;
 }
-:root:not([data-capy-shell-mode]) .capy-mode-auto,
-[data-capy-shell-mode="light"] .capy-mode-light,
-[data-capy-shell-mode="dark"] .capy-mode-dark,
-[data-capy-shell-mode="auto"] .capy-mode-auto {
+:root:not([data-capy-shell-mode]) .capy-mode-light,
+[data-capy-shell-mode="auto"] .capy-mode-light,
+[data-capy-shell-mode="light"] .capy-mode-dark,
+[data-capy-shell-mode="dark"] .capy-mode-auto {
   display: inline-block;
 }

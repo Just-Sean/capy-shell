@@ -171,7 +171,7 @@ def test_header_has_capy_shells_own_mode_toggle():
     assert 'id="capy-shell-mode"' in html
     for cls in ("capy-mode-light", "capy-mode-dark", "capy-mode-auto"):
         assert cls in html
-    assert 'aria-label="Theme: auto. Activate to change."' in html
+    assert 'aria-label="Theme: auto. Switch to light."' in html
     assert 'role="status"' in html and 'aria-live="polite"' in html
     # The removed capy-theme v2 tags leave no trace.
     assert "theme_mode_toggle" not in html and "theme_logo" not in html
