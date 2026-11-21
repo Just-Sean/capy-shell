@@ -131,7 +131,7 @@ requires-dist = [{ name = "django", specifier = ">=6.1,<7" }]
 
 [package.metadata.requires-dev]
 demo = [
-    { name = "capy-theme", git = "https://github.com/Just-Sean/capy-theme?tag=v1.0.0" },
+    { name = "capy-theme", git = "https://github.com/Just-Sean/capy-theme?branch=main" },
     { name = "django-tailwind-cli", specifier = ">=2.21" },
 ]
 dev = [
@@ -147,8 +147,8 @@ dev = [
 
 [[package]]
 name = "capy-theme"
-version = "1.0.0"
-source = { git = "https://github.com/Just-Sean/capy-theme?tag=v1.0.0#cb235afb8b72d7eb8823ffb71d74618e22d4eb3a" }
+version = "2.0.0"
+source = { git = "https://github.com/Just-Sean/capy-theme?branch=main#0202acfcde43b04818b8f1383da82f9df9ab0935" }
 dependencies = [
     { name = "brotli", marker = "platform_python_implementation == 'CPython'" },
     { name = "brotlicffi", marker = "platform_python_implementation != 'CPython'" },

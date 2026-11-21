@@ -96,25 +96,36 @@ In a project made from capy-project, with its database running
 
 ### Wiring the app shell
 
-capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` and
-`{% theme_mode_toggle %}`), plus three bits of wiring:
+capy-shell needs **capy-theme (v2)** installed. The shell renders the header's
+brand/logo and its own **light/dark/auto toggle** itself, from capy-theme's exposed
+data (`{% theme_artifacts %}`) — you don't add any capy-theme tags to the header. Plus
+three bits of wiring:
 
 1. Add `"capy_shell.context_processors.shell"` to the template
    `OPTIONS["context_processors"]`.
-2. Point the project's `layout.html` at the shell and fill its brand and
-   header-action slots (this is the one-line injection step 5 refers to):
+2. Point the project's `layout.html` at the shell (this is the one-line injection step 5
+   refers to); the brand and mode toggle come for free:
 
    ```html
    {% extends "capy_shell/base.html" %}
-   {% load capy_theme %}
-   {% block shell_brand %}<a href="/">{% theme_logo %}</a>{% endblock %}
-   {% block shell_header_actions %}{% theme_mode_toggle %}{% endblock %}
+   {# Override shell_brand to customize the logo link, or shell_header_actions to add
+      your own header buttons; otherwise the shell renders both itself. #}
    ```
 
-   The project's `base.html` must expose a `{% block head %}` inside `<head>`
-   (the shell adds its content stylesheet there) and a `{% block body %}` inside
-   `<body>` (the shell fills it). Feature modules extend `layout.html` and fill
-   `{% block content %}`.
+   The project's `base.html` must **link capy-theme's stylesheet** (the shell's toggle
+   sets `data-theme` on it) and expose a `{% block head %}` inside `<head>` and a
+   `{% block body %}` inside `<body>`:
+
+   ```html
+   {% load capy_theme %}{% theme_artifacts as theme %}
+   <html lang="en"><head>
+     …
+     {% if theme %}<link rel="stylesheet" href="{{ theme.stylesheet_url }}">{% endif %}
+     {% block head %}{% endblock %}
+   </head><body>{% block body %}{% endblock %}</body></html>
+   ```
+
+   Feature modules extend `layout.html` and fill `{% block content %}`.
 
    The shell wraps the content in a header + regions layout. Besides `shell_brand`
    and `shell_header_actions`, the layout exposes these blocks to fill (all optional):
@@ -127,8 +138,8 @@ capy-shell needs **capy-theme** installed (its header uses `{% theme_logo %}` an
    | `shell_footer` | The footer (shown when `CAPY_SHELL_FOOTER` is on). |
 
    For small header changes prefer the `shell_brand` and `shell_header_actions`
-   slots; overriding the whole `shell_header` block means re-providing the brand,
-   the `{% theme_mode_toggle %}` and the `CAPY_SHELL_HEADER_STICKY` behavior yourself.
+   slots; overriding the whole `shell_header` block means re-providing the brand, the
+   light/dark/auto toggle and the `CAPY_SHELL_HEADER_STICKY` behavior yourself.
 
    Which regions appear, whether they stick, and their widths are set with
    `CAPY_SHELL_*` settings (see [Settings](#settings)). Turn a region on only when

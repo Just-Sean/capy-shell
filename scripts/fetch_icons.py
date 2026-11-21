@@ -36,6 +36,9 @@ ICONS = [
     "log-in",
     "log-out",
     "external-link",
+    "sun",
+    "moon",
+    "sun-moon",
 ]
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "src" / "capy_shell" / "icons"

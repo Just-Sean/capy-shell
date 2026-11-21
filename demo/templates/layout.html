@@ -1,14 +1,14 @@
 {% extends "capy_shell/base.html" %}
 {% comment %}
-  The project's layout. It extends the shell (one line) and fills the shell's
-  brand and header-action slots with capy-theme's tags. Feature modules extend
-  this template and fill {% block content %}.
+  The project's layout. It extends the shell (one line) and fills the shell's brand slot.
+  The brand/logo comes from capy-theme's exposed data via capy-shell's _brand partial
+  (capy-theme v2 no longer renders a logo tag). Feature modules extend this template and
+  fill {% block content %}.
 {% endcomment %}
-{% load capy_theme %}
 
 {% block shell_brand %}
   <a href="/" class="flex items-center gap-2 text-lg font-bold">
-    {% if theme.logo_url %}{% theme_logo %}{% else %}Capy Shell demo{% endif %}
+    {% include "capy_shell/_brand.html" %}
   </a>
 {% endblock %}
 
