@@ -48,6 +48,9 @@
   <input type="checkbox" id="capy-shell-drawer-toggle" class="hidden">
 {% endif %}
 
+{% comment %}A full-height column so the footer sits at the bottom even on a short page
+   (the regions row below grows to fill the space).{% endcomment %}
+<div class="flex min-h-dvh flex-col">
 {% block shell_header %}
 <header class="navbar border-b border-base-300 bg-base-200 px-4 {% if shell.header_sticky %}sticky top-0 z-30{% endif %}">
   {% if shell.sidebar %}
@@ -84,14 +87,17 @@
    the header instead and this is hidden; below `md` it's an off-canvas drawer (see
    shell.css) with a backdrop. The aside is a desktop column, hidden on small screens.
    Each renders only when its setting is on.{% endcomment %}
-<div class="flex">
+<div class="flex flex-1">
   {% if shell.sidebar %}
     <label for="capy-shell-drawer-toggle" id="capy-shell-overlay" aria-hidden="true"
            class="md:hidden"></label>
+    {% comment %}The nav column stretches to the full height (so its divider reaches the
+       footer); the sticky nav lives in the inner wrapper.{% endcomment %}
     <nav id="capy-shell-nav" aria-label="Primary navigation"
-         class="shrink-0 border-r border-base-300 bg-base-100 md:block lg:hidden {{ shell.sidebar_width }}
-                {% if shell.sidebar_sticky %}md:sticky md:self-start md:overflow-y-auto {% if shell.header_sticky %}md:top-16 md:max-h-[calc(100dvh_-_4rem)]{% else %}md:top-0 md:max-h-screen{% endif %}{% endif %}">
-      {% block shell_nav %}{% shell_nav %}{% endblock %}
+         class="shrink-0 border-r border-base-300 bg-base-100 md:block lg:hidden {{ shell.sidebar_width }}">
+      <div class="{% if shell.sidebar_sticky %}md:sticky md:overflow-y-auto {% if shell.header_sticky %}md:top-16 md:max-h-[calc(100dvh_-_4rem)]{% else %}md:top-0 md:max-h-screen{% endif %}{% endif %}">
+        {% block shell_nav %}{% shell_nav %}{% endblock %}
+      </div>
     </nav>
   {% endif %}
 
@@ -102,9 +108,10 @@
   </main>
 
   {% if shell.aside %}
-    <aside class="hidden shrink-0 border-l border-base-300 md:block {{ shell.aside_width }}
-                  {% if shell.aside_sticky %}md:sticky md:self-start md:overflow-y-auto {% if shell.header_sticky %}md:top-16 md:max-h-[calc(100dvh_-_4rem)]{% else %}md:top-0 md:max-h-screen{% endif %}{% endif %}">
-      {% block shell_aside %}{% endblock %}
+    <aside class="hidden shrink-0 border-l border-base-300 md:block {{ shell.aside_width }}">
+      <div class="{% if shell.aside_sticky %}md:sticky md:overflow-y-auto {% if shell.header_sticky %}md:top-16 md:max-h-[calc(100dvh_-_4rem)]{% else %}md:top-0 md:max-h-screen{% endif %}{% endif %}">
+        {% block shell_aside %}{% endblock %}
+      </div>
     </aside>
   {% endif %}
 </div>
@@ -114,4 +121,5 @@
     {% block shell_footer %}{% endblock %}
   </footer>
 {% endif %}
+</div>
 {% endblock %}
