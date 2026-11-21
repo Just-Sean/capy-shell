@@ -68,3 +68,15 @@
     transition: none;
   }
 }
+
+/* Light/dark/auto toggle (mode.js sets data-capy-shell-mode on <html>): show only the
+   icon for the current mode. Before JS runs, or without it, show the "auto" icon. */
+.capy-mode-icon {
+  display: none;
+}
+:root:not([data-capy-shell-mode]) .capy-mode-auto,
+[data-capy-shell-mode="light"] .capy-mode-light,
+[data-capy-shell-mode="dark"] .capy-mode-dark,
+[data-capy-shell-mode="auto"] .capy-mode-auto {
+  display: inline-block;
+}

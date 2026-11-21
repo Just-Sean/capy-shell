@@ -1,11 +1,14 @@
 {% load tailwind_cli capy_theme %}<!doctype html>
-<html lang="en" {% theme_html_attrs %}>
+{% comment %}capy-theme v2 exposes the theme as data/files; the project (this host) links
+   the stylesheet itself. data-theme on <html> is set by the shell's mode.js.{% endcomment %}
+{% theme_artifacts as theme %}
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Capy Shell demo{% endblock %}</title>
   {% tailwind_css %}
-  {% theme_head %}
+  {% if theme %}<link rel="stylesheet" href="{{ theme.stylesheet_url }}">{% endif %}
   {% block head %}{% endblock %}
 </head>
 <body class="min-h-dvh bg-base-100 text-base-content">

@@ -49,9 +49,10 @@ demo = [
 ]
 
 [tool.uv.sources]
-# Demo only — the shell is themed by capy-theme. From git (a tag), so CI and a fresh
-# checkout can resolve it; a local-path source can't be found off this machine.
-capy-theme = { git = "https://github.com/Just-Sean/capy-theme", tag = "v1.0.0" }
+# Demo only — the shell is themed by capy-theme. From git, so CI and a fresh checkout can
+# resolve it. Tracks `main` for now (capy-theme v2 is merged but not yet tagged); pin this
+# back to a tag (`tag = "v2.0.0"`) once v2 is released.
+capy-theme = { git = "https://github.com/Just-Sean/capy-theme", branch = "main" }
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tests.settings"

@@ -162,3 +162,30 @@ def test_content_stylesheet_ships_and_is_scoped():
     assert "underline" in css
     # The theme's colour, with a safe fallback when no theme is active.
     assert "var(--color-primary" in css
+
+
+def test_header_has_capy_shells_own_mode_toggle():
+    html = _render_shell()
+    # One cycling button (wired by mode.js), all three mode icons, and a live region.
+    assert "data-capy-shell-mode-cycle" in html
+    assert 'id="capy-shell-mode"' in html
+    for cls in ("capy-mode-light", "capy-mode-dark", "capy-mode-auto"):
+        assert cls in html
+    assert 'aria-label="Theme: auto. Activate to change."' in html
+    assert 'role="status"' in html and 'aria-live="polite"' in html
+    # The removed capy-theme v2 tags leave no trace.
+    assert "theme_mode_toggle" not in html and "theme_logo" not in html
+
+
+def test_mode_script_runs_before_paint_and_drawer_stays_deferred():
+    html = _render_shell()
+    # mode.js is NOT deferred (applies the stored mode before first paint); drawer.js is.
+    assert re.search(r'<script src="[^"]*capy_shell/mode\.js"></script>', html)
+    assert re.search(r'<script src="[^"]*capy_shell/drawer\.js" defer></script>', html)
+
+
+def test_mode_toggle_has_its_show_hide_css_and_script():
+    root = Path(capy_shell.__file__).parent / "static/capy_shell"
+    assert (root / "mode.js").exists()
+    css = (root / "shell.css").read_text()
+    assert "data-capy-shell-mode" in css and ".capy-mode-icon" in css

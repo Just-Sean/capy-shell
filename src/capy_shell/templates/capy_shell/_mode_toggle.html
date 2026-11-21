@@ -1,0 +1,18 @@
+{% load capy_icons %}{% comment %}
+  capy-shell's own light / dark / auto toggle: one button that cycles, driven by
+  mode.js. shell.css shows the icon for the current mode via html[data-capy-shell-mode];
+  mode.js keeps the button's aria-label naming the current mode and announces a change in
+  the live region. Hovering shows the title tooltip. Without JavaScript it shows the
+  "auto" icon and is inert (the page is in auto mode anyway).
+{% endcomment %}
+<button type="button" id="capy-shell-mode" data-capy-shell-mode-cycle
+        title="Light, dark or auto theme"
+        class="btn btn-ghost btn-square"
+        aria-label="Theme: auto. Activate to change.">
+  <span aria-hidden="true">
+    {% icon "sun" class="size-5 capy-mode-icon capy-mode-light" %}
+    {% icon "moon" class="size-5 capy-mode-icon capy-mode-dark" %}
+    {% icon "sun-moon" class="size-5 capy-mode-icon capy-mode-auto" %}
+  </span>
+</button>
+<span class="sr-only" role="status" aria-live="polite" id="capy-shell-mode-live"></span>
