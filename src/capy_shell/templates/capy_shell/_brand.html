@@ -1,5 +1,6 @@
-{% load capy_theme %}{% comment %}
-  The brand/logo, rendered by capy-shell from capy-theme's exposed data (v2 — capy-theme
-  no longer renders a logo tag; the consumer builds it). The dark logo follows the device
-  in auto mode; falls back to the site name, then to nothing.
-{% endcomment %}{% theme_artifacts as theme %}{% if theme %}{% with logo=theme.logos.logo_main %}{% if logo.light %}<picture>{% if logo.dark %}<source srcset="{{ logo.dark.url }}" media="(prefers-color-scheme: dark)">{% endif %}<img src="{{ logo.light.url }}" width="{{ logo.light.width }}" height="{{ logo.light.height }}" alt="{{ logo.light.alt }}" class="h-8 w-auto"></picture>{% elif theme.branding.site_name %}{{ theme.branding.site_name }}{% endif %}{% endwith %}{% endif %}
+{% load capy_theme capy_shell_theme %}{% comment %}
+  The brand/logo, rendered by capy-shell from the chosen theme's exposed data. A theme is
+  a single scheme with one logo; the brand shows the light-slot theme's logo (the visitor's
+  light pick or the admin's default light theme), falling back to the dark slot, then the
+  site name, then nothing. capy-theme no longer renders a logo tag; the consumer builds it.
+{% endcomment %}{% theme_catalog as themes %}{% theme_slots themes shell.light_pick shell.dark_pick as slots %}{% with slot=slots.light|default:slots.dark %}{% if slot %}{% theme_assets slot.slug as theme %}{% if theme %}{% with logo=theme.logos.logo_main %}{% if logo %}<img src="{{ logo.url }}" width="{{ logo.width }}" height="{{ logo.height }}" alt="{{ logo.alt }}" class="h-8 w-auto">{% elif theme.branding.site_name %}{{ theme.branding.site_name }}{% endif %}{% endwith %}{% endif %}{% endif %}{% endwith %}

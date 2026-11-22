@@ -97,9 +97,12 @@ In a project made from capy-project, with its database running
 ### Wiring the app shell
 
 capy-shell needs **capy-theme (v2)** installed. The shell renders the header's
-brand/logo and its own **light/dark/auto toggle** itself, from capy-theme's exposed
-data (`{% theme_artifacts %}`) — you don't add any capy-theme tags to the header. Plus
-three bits of wiring:
+brand/logo, a **theme picker** and its own **light/dark/auto toggle** itself, from
+capy-theme's exposed data (its catalog and per-theme assets) — you don't add any
+capy-theme tags to the header. A theme is a single scheme (light or dark), so the shell
+loads a **light-slot** theme and a **dark-slot** theme (the visitor's pick for each
+scheme, or the admin's default for it) and its toggle switches between them. Plus three
+bits of wiring:
 
 1. Add `"capy_shell.context_processors.shell"` to the template
    `OPTIONS["context_processors"]`.
@@ -112,15 +115,16 @@ three bits of wiring:
       your own header buttons; otherwise the shell renders both itself. #}
    ```
 
-   The project's `base.html` must **link capy-theme's stylesheet** (the shell's toggle
-   sets `data-theme` on it) and expose a `{% block head %}` inside `<head>` and a
+   The project's `base.html` must **link the chosen theme stylesheets** by including
+   the shell's `_theme_stylesheet.html` in `<head>` (it links the light-slot and
+   dark-slot theme stylesheets, which the shell's toggle switches between with
+   `data-theme`), and expose a `{% block head %}` inside `<head>` and a
    `{% block body %}` inside `<body>`:
 
    ```html
-   {% load capy_theme %}{% theme_artifacts as theme %}
    <html lang="en"><head>
      …
-     {% if theme %}<link rel="stylesheet" href="{{ theme.stylesheet_url }}">{% endif %}
+     {% include "capy_shell/_theme_stylesheet.html" %}
      {% block head %}{% endblock %}
    </head><body>{% block body %}{% endblock %}</body></html>
    ```
@@ -296,14 +300,15 @@ differs. From the repo root:
 ```bash
 uv sync --group demo   # installs capy-theme + the Tailwind CLI (demo-only deps)
 uv run python demo/manage.py migrate
-uv run python demo/manage.py seed_theme   # publishes a light/dark theme so the header renders
+uv run python demo/manage.py seed_theme   # publishes a light + a dark theme so the header renders
 uv run python demo/manage.py tailwind runserver   # http://localhost:8000/
 ```
 
 `seed_theme` (a dev-only command in `demo/demo_theme/`, never shipped) creates,
-publishes and activates a simple light/dark theme so the header's mode toggle shows.
-It does nothing if a theme is already active, so it's safe to re-run. To design a
-real theme, log in to `/admin/` and use capy-theme's admin instead.
+publishes and activates a simple light theme and dark theme (the default for each
+scheme) so the header's picker and toggle work. It does nothing if both defaults are
+already set, so it's safe to re-run. To design a real theme, log in to `/admin/` and
+use capy-theme's admin instead.
 
 `demo/demo_pages/` is a dev-only stand-in end-user app that declares nav
 (`demo_pages/nav.py`), so there's something to collect. The shell renders nav in a

@@ -1,32 +1,37 @@
-"""Seed a published light/dark theme so the demo's header renders.
+"""Seed a published light theme and dark theme so the demo's header renders.
 
 Dev-only, demo-only: nothing here ships in the capy_shell package. Run it once
-after `migrate` (see the demo section of the README). It does nothing if a theme
-is already active, so it's safe to run again.
+after `migrate` (see the demo section of the README). A theme is a single scheme,
+so this seeds two — a light default and a dark default — which the shell's toggle
+switches between. It does nothing if both defaults are already set, so it's safe to
+run again.
 """
 
 from capy_theme.models import Theme
-from capy_theme.themes.active import get_active_theme
+from capy_theme.themes.active import default_themes
 from capy_theme.themes.publishing import publish_and_activate
 from django.core.management.base import BaseCommand
 
-THEME_NAME = "Capy Demo"
-THEME_SLUG = "capy-demo"
+# (name, slug, daisyUI base) — the base sets each theme's scheme.
+THEMES = [
+    ("Capy Light", "capy-light-demo", "light"),
+    ("Capy Dark", "capy-dark-demo", "dark"),
+]
 
 
 class Command(BaseCommand):
-    help = "Create, publish and activate a demo light/dark theme (if none is active)."
+    help = "Create, publish and activate a demo light theme and dark theme (if not set)."
 
     def handle(self, *args, **options):
-        if get_active_theme() is not None:
-            self.stdout.write("A theme is already active; nothing to do.")
+        defaults = default_themes()
+        if defaults["light"] is not None and defaults["dark"] is not None:
+            self.stdout.write("A light and a dark default theme are already set; nothing to do.")
             return
-
-        theme, _created = Theme.objects.get_or_create(
-            slug=THEME_SLUG,
-            defaults={"name": THEME_NAME, "light_base": "light", "dark_base": "dark"},
-        )
-        publish_and_activate(theme, note="Seeded by the demo's seed_theme command.")
-        self.stdout.write(
-            self.style.SUCCESS(f"Published and activated the demo theme “{theme.name}”.")
-        )
+        for name, slug, base in THEMES:
+            theme, _created = Theme.objects.get_or_create(
+                slug=slug, defaults={"name": name, "base": base}
+            )
+            publish_and_activate(theme, note="Seeded by the demo's seed_theme command.")
+            self.stdout.write(
+                self.style.SUCCESS(f"Published and activated the demo {base} theme “{theme.name}”.")
+            )
