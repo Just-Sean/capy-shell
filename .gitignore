@@ -37,3 +37,5 @@ demo/db.sqlite3
 demo/media/
 demo/static/css/tailwind.css
 demo/.django_tailwind_cli/
+.claude/worktrees/
+.claude/settings.local.json
